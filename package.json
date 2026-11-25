@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "storybook": "storybook dev -p 43124 --host 0.0.0.0",
+    "storybook": "storybook dev -p 43124 --no-open",
     "build-storybook": "storybook build"
   },
   "dependencies": {
