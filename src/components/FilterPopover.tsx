@@ -13,13 +13,13 @@ type FilterPopoverProps = {
 };
 
 const statusOptions: { value: string; label: string }[] = [
-  { value: "all", label: "全部" },
-  { value: "draft", label: "草稿" },
-  { value: "in_review", label: "審查中" },
-  { value: "released", label: "已發行" },
-  { value: "retired", label: "已取代或已停用" },
-  { value: "superseded", label: "已取代" },
-  { value: "obsolete", label: "已停用" },
+  { value: "all", label: "All" },
+  { value: "draft", label: "Draft" },
+  { value: "in_review", label: "In Review" },
+  { value: "released", label: "Released" },
+  { value: "retired", label: "Superseded or Obsolete" },
+  { value: "superseded", label: "Superseded" },
+  { value: "obsolete", label: "Obsolete" },
 ];
 
 export function FilterPopover({ query, activeCount, onChange, forceOpen = false }: FilterPopoverProps) {
@@ -53,7 +53,7 @@ export function FilterPopover({ query, activeCount, onChange, forceOpen = false 
         aria-controls="bom-filters"
         onClick={() => setOpen((value) => !value)}
       >
-        篩選
+        Filters
         {activeCount > 0 ? <span className="badge">{activeCount}</span> : null}
       </Button>
       {shown ? (
@@ -75,14 +75,14 @@ export function FilterForm({ id, query, onChange, staticPanel = false }: FilterF
   return (
     <div id={id} className={staticPanel ? "popover popover-static" : "popover"}>
       <label className="field" htmlFor={`${baseId}-rev`}>
-        <span className="field-label">版本</span>
+        <span className="field-label">Revision</span>
         <select
           id={`${baseId}-rev`}
           className="control"
           value={query.rev}
           onChange={(event) => onChange({ rev: event.target.value })}
         >
-          <option value="">全部版本</option>
+          <option value="">All revisions</option>
           {revisions.map((revision) => (
             <option key={revision} value={revision}>
               {revision}
@@ -91,7 +91,7 @@ export function FilterForm({ id, query, onChange, staticPanel = false }: FilterF
         </select>
       </label>
       <label className="field" htmlFor={`${baseId}-status`}>
-        <span className="field-label">狀態</span>
+        <span className="field-label">Status</span>
         <select
           id={`${baseId}-status`}
           className="control"
@@ -107,7 +107,7 @@ export function FilterForm({ id, query, onChange, staticPanel = false }: FilterF
       </label>
       <div className="date-row">
         <label className="field" htmlFor={`${baseId}-from`}>
-          <span className="field-label">生效日起</span>
+          <span className="field-label">Effective from</span>
           <input
             id={`${baseId}-from`}
             className="control"
@@ -118,7 +118,7 @@ export function FilterForm({ id, query, onChange, staticPanel = false }: FilterF
           />
         </label>
         <label className="field" htmlFor={`${baseId}-to`}>
-          <span className="field-label">生效日迄</span>
+          <span className="field-label">Effective to</span>
           <input
             id={`${baseId}-to`}
             className="control"
@@ -133,7 +133,7 @@ export function FilterForm({ id, query, onChange, staticPanel = false }: FilterF
         variant="ghost"
         onClick={() => onChange({ rev: "", from: "", to: "", exact: "" })}
       >
-        清除條件
+        Clear
       </Button>
     </div>
   );

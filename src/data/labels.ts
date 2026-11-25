@@ -14,15 +14,15 @@ export type TagTone =
 export function statusLabel(status: BomStatus): string {
   switch (status) {
     case "draft":
-      return "草稿";
+      return "Draft";
     case "in_review":
-      return "審查中";
+      return "In Review";
     case "released":
-      return "已發行";
+      return "Released";
     case "superseded":
-      return "已取代";
+      return "Superseded";
     case "obsolete":
-      return "已停用";
+      return "Obsolete";
   }
 }
 
@@ -44,13 +44,13 @@ export function statusTone(status: BomStatus): TagTone {
 export function serviceabilityLabel(value: Serviceability): string {
   switch (value) {
     case "serviceable":
-      return "可維修";
+      return "Serviceable";
     case "replaceable":
-      return "可更換";
+      return "Replaceable";
     case "consumable":
-      return "耗材";
+      return "Consumable";
     case "assembly":
-      return "總成更換";
+      return "Assembly replacement";
   }
 }
 

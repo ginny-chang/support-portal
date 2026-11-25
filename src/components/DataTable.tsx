@@ -61,7 +61,7 @@ export function DataTable<T>({
                 <Checkbox
                   checked={allSelected}
                   mixed={mixed}
-                  label="選取全部"
+                  label="Select all"
                   onChange={() => onToggleAll?.()}
                 />
               </th>
@@ -110,7 +110,7 @@ export function DataTable<T>({
                     <td>
                       <Checkbox
                         checked={selected}
-                        label={`選取 ${key}`}
+                        label={`Select ${key}`}
                         onChange={() => onToggleRow?.(key)}
                       />
                     </td>

@@ -35,7 +35,7 @@ export function KebabMenu({ label, onSelect }: KebabMenuProps) {
       <button
         type="button"
         className="kebab-btn"
-        aria-label="更多動作"
+        aria-label="More actions"
         aria-haspopup="menu"
         aria-expanded={pos !== null}
         onMouseDown={(event) => event.stopPropagation()}

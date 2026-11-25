@@ -16,11 +16,11 @@ import { StatusTag } from "../components/StatusTag";
 import { Tabs } from "../components/Tabs";
 
 const tabs: { id: TabId; label: string }[] = [
-  { id: "all", label: "全部" },
-  { id: "draft", label: "草稿" },
-  { id: "in_review", label: "審查中" },
-  { id: "released", label: "已發行" },
-  { id: "retired", label: "已取代或已停用" },
+  { id: "all", label: "All" },
+  { id: "draft", label: "Draft" },
+  { id: "in_review", label: "In Review" },
+  { id: "released", label: "Released" },
+  { id: "retired", label: "Superseded or Obsolete" },
 ];
 
 export function BomListPage() {
@@ -71,7 +71,7 @@ export function BomListPage() {
       },
       {
         id: "product",
-        header: "產品或組件",
+        header: "Product or Assembly",
         sortable: true,
         render: (row) => (
           <div className="product-cell">
@@ -88,35 +88,35 @@ export function BomListPage() {
       },
       {
         id: "revision",
-        header: "版本",
+        header: "Revision",
         width: "84px",
         sortable: true,
         render: (row) => row.revision,
       },
       {
         id: "status",
-        header: "狀態",
+        header: "Status",
         width: "120px",
         sortable: true,
         render: (row) => <StatusTag tone={statusTone(row.status)}>{statusLabel(row.status)}</StatusTag>,
       },
       {
         id: "owner",
-        header: "負責人",
+        header: "Owner",
         width: "104px",
         sortable: true,
         render: (row) => row.owner,
       },
       {
         id: "effective",
-        header: "生效日",
+        header: "Effective Date",
         width: "124px",
         sortable: true,
         render: (row) => formatDate(row.effectiveDate),
       },
       {
         id: "updated",
-        header: "最後更新",
+        header: "Last Updated",
         width: "168px",
         sortable: true,
         render: (row) => formatDateTime(row.updatedAt),
@@ -138,7 +138,7 @@ export function BomListPage() {
   return (
     <div className="page">
       <Tabs
-        label="BOM 狀態"
+        label="BOM status"
         items={tabs}
         value={query.tab}
         onChange={(id) => update({ tab: id as TabId, exact: "" })}
@@ -148,21 +148,21 @@ export function BomListPage() {
           <span className="count-icon">
             <Layers size={16} aria-hidden="true" />
           </span>
-          <span aria-live="polite">{rows.length} 筆服務 BOM</span>
+          <span aria-live="polite">{rows.length} Service BOM</span>
         </div>
         <div className="summary-actions">
           <FilterPopover query={query} activeCount={activeFilterCount(query)} onChange={update} />
           <Button variant="primary" icon={<Plus size={16} />}>
-            新增 BOM
+            Add BOM
           </Button>
         </div>
       </div>
       <DataTable
-        caption="服務 BOM"
+        caption="Service BOM"
         columns={columns}
         rows={rows}
         rowKey={(row) => row.id}
-        empty="沒有符合的服務 BOM"
+        empty="No matching Service BOM"
         selectable
         selectedKeys={selected}
         onToggleRow={(key) => {
@@ -182,7 +182,7 @@ export function BomListPage() {
         sort={{ id: query.sort, dir: query.dir }}
         onSort={onSort}
         onRowClick={(row) => openDetail(row.id)}
-        trailing={(row) => <KebabMenu label="查看明細" onSelect={() => openDetail(row.id)} />}
+        trailing={(row) => <KebabMenu label="View detail" onSelect={() => openDetail(row.id)} />}
       />
     </div>
   );

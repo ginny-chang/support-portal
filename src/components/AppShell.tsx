@@ -23,7 +23,7 @@ export function AppShell() {
   const [draft, setDraft] = useState(() => parseQuery(params).q);
 
   useEffect(() => {
-    document.title = detail ? "服務 BOM 明細 · Giant Support Portal" : "服務 BOM · Giant Support Portal";
+    document.title = detail ? "Service BOM detail · Giant Support Portal" : "Service BOM · Giant Support Portal";
   }, [detail]);
 
   function updateQuery(value: string) {
@@ -45,22 +45,22 @@ export function AppShell() {
               {detail ? (
                 <Link className="crumb" to={backTo}>
                   <ArrowLeft size={18} aria-hidden="true" />
-                  服務 BOM
+                  Service BOM
                 </Link>
               ) : (
-                <h1>服務 BOM</h1>
+                <h1>Service BOM</h1>
               )}
             </div>
             <SearchField
-              label="搜尋產品、車型、總成或料號"
+              label="Search by product, model, assembly, or part number"
               value={draft}
               onValueChange={updateQuery}
             />
             <div className="topbar-actions">
-              <button type="button" className="icon-btn" disabled aria-label="通知">
+              <button type="button" className="icon-btn" disabled aria-label="Notifications">
                 <Bell size={18} />
               </button>
-              <button type="button" className="icon-btn" disabled aria-label="說明">
+              <button type="button" className="icon-btn" disabled aria-label="Help">
                 <CircleHelp size={18} />
               </button>
               <div className="user">
@@ -69,7 +69,7 @@ export function AppShell() {
                 </div>
                 <div>
                   <div className="user-name">陳宜安</div>
-                  <div className="user-role">服務工程</div>
+                  <div className="user-role">Service engineer</div>
                 </div>
               </div>
             </div>

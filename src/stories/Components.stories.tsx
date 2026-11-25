@@ -21,10 +21,10 @@ export default meta;
 export const Buttons: StoryObj = {
   render: () => (
     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      <Button icon={<Plus size={16} />}>新增 BOM</Button>
-      <Button variant="secondary">篩選</Button>
-      <Button variant="ghost">清除條件</Button>
-      <Button disabled>停用</Button>
+      <Button icon={<Plus size={16} />}>Add BOM</Button>
+      <Button variant="secondary">Filters</Button>
+      <Button variant="ghost">Clear</Button>
+      <Button disabled>Disabled</Button>
     </div>
   ),
 };
@@ -40,49 +40,49 @@ function FieldsDemo() {
   const [search, setSearch] = useState("");
   return (
     <div style={{ display: "grid", gap: 16, width: 360 }}>
-      <SearchField label="搜尋產品、車型、總成或料號" value={search} onValueChange={setSearch} />
+      <SearchField label="Search by product, model, assembly, or part number" value={search} onValueChange={setSearch} />
       <TextField label="BOM ID" value={text} onChange={(event) => setText(event.target.value)} />
       <SelectField
-        label="版本"
+        label="Revision"
         value={rev}
         options={[
-          { value: "", label: "全部版本" },
+          { value: "", label: "All revisions" },
           { value: "A", label: "A" },
           { value: "B", label: "B" },
           { value: "C", label: "C" },
         ]}
         onChange={(event) => setRev(event.target.value)}
       />
-      <TextField label="生效日" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+      <TextField label="Effective date" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
     </div>
   );
 }
 
 const tabItems = [
-  { id: "all", label: "全部" },
-  { id: "draft", label: "草稿" },
-  { id: "in_review", label: "審查中" },
-  { id: "released", label: "已發行" },
-  { id: "retired", label: "已取代或已停用" },
+  { id: "all", label: "All" },
+  { id: "draft", label: "Draft" },
+  { id: "in_review", label: "In Review" },
+  { id: "released", label: "Released" },
+  { id: "retired", label: "Superseded or Obsolete" },
 ];
 
 export const TabBar: StoryObj = { render: () => <TabsDemo /> };
 
 function TabsDemo() {
   const [value, setValue] = useState("released");
-  return <Tabs label="BOM 狀態" items={tabItems} value={value} onChange={setValue} />;
+  return <Tabs label="BOM status" items={tabItems} value={value} onChange={setValue} />;
 }
 
 const tones: { tone: TagTone; label: string }[] = [
-  { tone: "draft", label: "草稿" },
-  { tone: "review", label: "審查中" },
-  { tone: "released", label: "已發行" },
-  { tone: "superseded", label: "已取代" },
-  { tone: "obsolete", label: "已停用" },
-  { tone: "serviceable", label: "可維修" },
-  { tone: "replaceable", label: "可更換" },
-  { tone: "consumable", label: "耗材" },
-  { tone: "assembly", label: "總成更換" },
+  { tone: "draft", label: "Draft" },
+  { tone: "review", label: "In Review" },
+  { tone: "released", label: "Released" },
+  { tone: "superseded", label: "Superseded" },
+  { tone: "obsolete", label: "Obsolete" },
+  { tone: "serviceable", label: "Serviceable" },
+  { tone: "replaceable", label: "Replaceable" },
+  { tone: "consumable", label: "Consumable" },
+  { tone: "assembly", label: "Assembly replacement" },
 ];
 
 export const StatusTags: StoryObj = {
@@ -111,14 +111,14 @@ const sampleRows: SampleRow[] = [
 
 const sampleColumns: Column<SampleRow>[] = [
   { id: "id", header: "BOM ID", sortable: true, render: (row) => row.id },
-  { id: "name", header: "產品或組件", sortable: true, render: (row) => row.name },
-  { id: "revision", header: "版本", sortable: true, render: (row) => row.revision },
+  { id: "name", header: "Product or assembly", sortable: true, render: (row) => row.name },
+  { id: "revision", header: "Revision", sortable: true, render: (row) => row.revision },
 ];
 
 export const Table: StoryObj = { render: () => <TableDemo /> };
 export const TableEmpty: StoryObj = {
   render: () => (
-    <DataTable caption="服務 BOM" columns={sampleColumns} rows={[]} rowKey={(row) => row.id} empty="沒有符合的服務 BOM" />
+    <DataTable caption="Service BOM" columns={sampleColumns} rows={[]} rowKey={(row) => row.id} empty="No matching Service BOM" />
   ),
 };
 export const TableLoading: StoryObj = { render: () => <TableSkeleton /> };
@@ -133,11 +133,11 @@ function TableDemo() {
   });
   return (
     <DataTable
-      caption="服務 BOM"
+      caption="Service BOM"
       columns={sampleColumns}
       rows={rows}
       rowKey={(row) => row.id}
-      empty="沒有符合的服務 BOM"
+      empty="No matching Service BOM"
       selectable
       selectedKeys={selected}
       onToggleRow={(key) => {

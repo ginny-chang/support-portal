@@ -22,27 +22,27 @@ interface NavItem {
 
 const groups: { label: string; items: NavItem[] }[] = [
   {
-    label: "服務作業",
+    label: "Service operations",
     items: [
-      { id: "bom", label: "服務 BOM", icon: Network, to: "/bom" },
-      { id: "work-orders", label: "服務工單", icon: ClipboardList },
-      { id: "claims", label: "品質索賠", icon: ShieldAlert },
-      { id: "replacement", label: "備品更換", icon: ArrowLeftRight },
+      { id: "bom", label: "Service BOM", icon: Network, to: "/bom" },
+      { id: "work-orders", label: "Service Work Order", icon: ClipboardList },
+      { id: "claims", label: "Quality Claim", icon: ShieldAlert },
+      { id: "replacement", label: "Spare Part Replacement", icon: ArrowLeftRight },
     ],
   },
   {
-    label: "庫存與文件",
+    label: "Inventory and documents",
     items: [
-      { id: "stock", label: "備品庫存", icon: Package },
-      { id: "docs", label: "技術文件", icon: FileText },
-      { id: "firmware", label: "韌體庫", icon: Cpu },
+      { id: "stock", label: "Spare Part Inventory", icon: Package },
+      { id: "docs", label: "Technical Document", icon: FileText },
+      { id: "firmware", label: "Firmware Library", icon: Cpu },
     ],
   },
   {
-    label: "系統",
+    label: "System",
     items: [
-      { id: "assistant", label: "AI 助理", icon: Sparkles },
-      { id: "admin", label: "管理", icon: Settings },
+      { id: "assistant", label: "AI Assistant", icon: Sparkles },
+      { id: "admin", label: "Administration", icon: Settings },
     ],
   },
 ];
@@ -53,7 +53,7 @@ export function Sidebar() {
       <div className="brand">
         <img src={wordmark} alt="Giant" width={128} height={24} />
       </div>
-      <nav className="nav" aria-label="主選單">
+      <nav className="nav" aria-label="Main">
         {groups.map((group) => (
           <div className="nav-group" key={group.label}>
             <div className="nav-group-label">{group.label}</div>

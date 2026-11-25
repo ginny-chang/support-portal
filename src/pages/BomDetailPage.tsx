@@ -15,16 +15,16 @@ export function BomDetailPage() {
 
   const lineColumns = useMemo<Column<BomLine>[]>(
     () => [
-      { id: "level", header: "層級", width: "72px", render: (line) => line.level },
+      { id: "level", header: "Level", width: "72px", render: (line) => line.level },
       {
         id: "part",
-        header: "料號",
+        header: "Part ID",
         width: "150px",
         render: (line) => <span className={line.obsolete ? "strike" : undefined}>{line.partId}</span>,
       },
       {
         id: "description",
-        header: "說明",
+        header: "Description",
         render: (line) => (
           <span className={line.level > 0 ? "indent-1" : undefined}>
             <span className={line.obsolete ? "strike" : undefined}>{line.description}</span>
@@ -33,22 +33,22 @@ export function BomDetailPage() {
       },
       {
         id: "quantity",
-        header: "數量",
+        header: "Quantity",
         width: "80px",
         align: "right",
         render: (line) => line.quantity,
       },
-      { id: "unit", header: "單位", width: "72px", render: (line) => line.unit },
+      { id: "unit", header: "Unit", width: "72px", render: (line) => line.unit },
       {
         id: "serviceability",
-        header: "可維修性",
+        header: "Serviceability",
         width: "180px",
         render: (line) => (
           <span className="tag-row">
             <StatusTag tone={serviceabilityTone(line.serviceability)}>
               {serviceabilityLabel(line.serviceability)}
             </StatusTag>
-            {line.obsolete ? <StatusTag tone="obsolete">已停用</StatusTag> : null}
+            {line.obsolete ? <StatusTag tone="obsolete">Obsolete</StatusTag> : null}
           </span>
         ),
       },
@@ -58,12 +58,12 @@ export function BomDetailPage() {
 
   const supersessionColumns = useMemo<Column<Supersession>[]>(
     () => [
-      { id: "from", header: "原料號", render: (item) => item.fromPartId },
-      { id: "to", header: "取代料號", render: (item) => item.toPartId },
-      { id: "relation", header: "關係", width: "120px", render: (item) => item.relation },
+      { id: "from", header: "Original part ID", render: (item) => item.fromPartId },
+      { id: "to", header: "Superseding part ID", render: (item) => item.toPartId },
+      { id: "relation", header: "Relation", width: "120px", render: (item) => item.relation },
       {
         id: "effective",
-        header: "生效日",
+        header: "Effective Date",
         width: "124px",
         render: (item) => formatDate(item.effectiveDate),
       },
@@ -74,8 +74,8 @@ export function BomDetailPage() {
   if (!record) {
     return (
       <div className="empty-page">
-        <p>找不到這筆服務 BOM</p>
-        <Link to="/bom">返回列表</Link>
+        <p>Service BOM not found</p>
+        <Link to="/bom">Back to list</Link>
       </div>
     );
   }
@@ -88,24 +88,24 @@ export function BomDetailPage() {
           <p className="detail-assembly">{record.assembly}</p>
           <div className="detail-idline">
             <span>{record.id}</span>
-            <span>版本 {record.revision}</span>
+            <span>Revision {record.revision}</span>
             <StatusTag tone={statusTone(record.status)}>{statusLabel(record.status)}</StatusTag>
           </div>
           <dl className="meta-grid">
             <div>
-              <dt>負責人</dt>
+              <dt>Owner</dt>
               <dd>{record.owner}</dd>
             </div>
             <div>
-              <dt>生效日</dt>
+              <dt>Effective date</dt>
               <dd>{formatDate(record.effectiveDate)}</dd>
             </div>
             <div>
-              <dt>最後更新</dt>
+              <dt>Last updated</dt>
               <dd>{formatDateTime(record.updatedAt)}</dd>
             </div>
             <div>
-              <dt>取代為</dt>
+              <dt>Superseded by</dt>
               <dd>
                 {record.supersededBy ? (
                   <Link to={`/bom/${record.supersededBy}`}>{record.supersededBy}</Link>
@@ -116,51 +116,51 @@ export function BomDetailPage() {
             </div>
           </dl>
 
-          <h2 className="section-title">明細</h2>
+          <h2 className="section-title">Lines</h2>
           <DataTable
-            caption="明細"
+            caption="Lines"
             columns={lineColumns}
             rows={record.lines}
             rowKey={(line) => line.partId}
             rowClassName={(line) => (line.obsolete ? "is-obsolete" : undefined)}
-            empty="無"
+            empty="None"
           />
 
-          <h2 className="section-title">適用範圍</h2>
+          <h2 className="section-title">Applicability</h2>
           <dl className="spec-grid">
             <div>
-              <dt>車型</dt>
+              <dt>Model</dt>
               <dd>{record.applicability.model}</dd>
             </div>
             <div>
-              <dt>車種</dt>
+              <dt>Category</dt>
               <dd>{record.applicability.category}</dd>
             </div>
             <div>
-              <dt>年式</dt>
+              <dt>Model year</dt>
               <dd>{record.applicability.modelYears}</dd>
             </div>
             <div>
-              <dt>尺寸</dt>
+              <dt>Size</dt>
               <dd>{record.applicability.sizes}</dd>
             </div>
             <div>
-              <dt>市場</dt>
+              <dt>Market</dt>
               <dd>{record.applicability.market}</dd>
             </div>
           </dl>
 
-          <h2 className="section-title">取代與停用</h2>
+          <h2 className="section-title">Substitutes / supersession</h2>
           <DataTable
-            caption="取代與停用"
+            caption="Substitutes / supersession"
             columns={supersessionColumns}
             rows={record.supersessions}
             rowKey={(item) => `${item.fromPartId}-${item.toPartId}`}
-            empty="無"
+            empty="None"
           />
         </div>
-        <aside className="audit-panel" aria-label="異動紀錄">
-          <h2 className="section-title">異動紀錄</h2>
+        <aside className="audit-panel" aria-label="Audit history">
+          <h2 className="section-title">Audit history</h2>
           <ol className="audit-list">
             {history.map((item, index) => (
               <li key={`${item.at}-${item.action}`} className={index === 0 ? "audit-item is-latest" : "audit-item"}>
