@@ -1,0 +1,73 @@
+:root {
+  --color-canvas: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f7f8fa;
+  --color-surface-hover: #f4f6f8;
+  --color-selected: #eef0fa;
+  --color-border: #e6e8ee;
+  --color-border-strong: #d5d9e2;
+  --color-text: #16181d;
+  --color-text-secondary: #3e4654;
+  --color-text-muted: #4e5666;
+  --color-primary: #06038d;
+  --color-primary-hover: #040266;
+  --color-primary-pressed: #03024c;
+  --color-on-primary: #ffffff;
+  --color-focus: #06038d;
+  --color-obsolete-row: #fdf6f6;
+  --color-obsolete-row-hover: #fbefef;
+
+  --status-draft-bg: #eceef1;
+  --status-draft-fg: #3a4150;
+  --status-review-bg: #f8e7c2;
+  --status-review-fg: #5c3e00;
+  --status-released-bg: #d9f2e3;
+  --status-released-fg: #0b5a32;
+  --status-superseded-bg: #e7e4f6;
+  --status-superseded-fg: #3e3278;
+  --status-obsolete-bg: #f8dcdd;
+  --status-obsolete-fg: #7a1419;
+  --status-serviceable-bg: #d9f3f5;
+  --status-serviceable-fg: #0e5f68;
+  --status-replaceable-bg: #e4e9f8;
+  --status-replaceable-fg: #243e8c;
+  --status-consumable-bg: #f8e7c2;
+  --status-consumable-fg: #5c3e00;
+  --status-assembly-bg: #e7e4f6;
+  --status-assembly-fg: #3e3278;
+
+  --font-sans: "Noto Sans TC", "WenQuanYi Micro Hei", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-size-12: 12px;
+  --font-size-13: 13px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --line-tight: 1.35;
+  --line-normal: 1.5;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  --shadow-shell: 0 10px 30px rgba(22, 24, 29, 0.06);
+  --shadow-pop: 0 12px 32px rgba(22, 24, 29, 0.12);
+
+  --sidebar-width: 240px;
+  --topbar-height: 72px;
+  --row-height: 52px;
+}
