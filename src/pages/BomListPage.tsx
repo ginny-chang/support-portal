@@ -1,18 +1,18 @@
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { boms } from "../data/bom";
+import { boms, revisions } from "../data/bom";
 import type { BomRecord } from "../data/bom";
 import { formatDate, formatDateTime } from "../data/format";
 import { statusLabel, statusTone } from "../data/labels";
-import { activeFilterCount, filterBoms, parseQuery, sortBoms, toSearchParams } from "../data/query";
-import type { BomQuery, SortKey } from "../data/query";
+import { filterBoms, parseQuery, sortBoms, toSearchParams } from "../data/query";
+import type { BomQuery } from "../data/query";
 import { TopbarSlot } from "../components/AppShell";
 import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
-import { FilterPopover } from "../components/FilterPopover";
+import { ProductFilter, RevisionFilter, SortFilter, StatusFilter } from "../components/HeaderFilters";
 import { KebabMenu } from "../components/KebabMenu";
 import { StatusTag } from "../components/StatusTag";
 
@@ -45,13 +45,29 @@ export function BomListPage() {
     navigate(`/bom/${id}`, { state: { from: location.search } });
   }
 
+  const products = useMemo(
+    () => [...new Set(boms.map((item) => item.product))].sort((left, right) => left.localeCompare(right, "en")),
+    [],
+  );
+  const assemblies = useMemo(
+    () => [...new Set(boms.map((item) => item.assembly))].sort((left, right) => left.localeCompare(right, "en")),
+    [],
+  );
+
   const columns = useMemo<Column<BomRecord>[]>(
     () => [
       {
         id: "id",
-        header: "BOM ID",
+        header: (
+          <SortFilter
+            label="BOM ID"
+            sortKey="id"
+            activeKey={query.sort}
+            dir={query.dir}
+            onChange={(sort, dir) => update({ sort, dir })}
+          />
+        ),
         width: "156px",
-        sortable: true,
         render: (row) => (
           <Link
             className="id-link"
@@ -65,8 +81,14 @@ export function BomListPage() {
       },
       {
         id: "product",
-        header: "Product or Assembly",
-        sortable: true,
+        header: (
+          <ProductFilter
+            products={products}
+            assemblies={assemblies}
+            selected={query.product}
+            onChange={(product) => update({ product })}
+          />
+        ),
         render: (row) => (
           <div className="product-cell">
             <Link
@@ -82,65 +104,90 @@ export function BomListPage() {
       },
       {
         id: "revision",
-        header: "Revision",
-        width: "84px",
-        sortable: true,
+        header: (
+          <RevisionFilter
+            revisions={revisions}
+            selected={query.revisions}
+            onToggle={(revision) => {
+              const current = queryRef.current.revisions;
+              update({
+                revisions: current.includes(revision)
+                  ? current.filter((item) => item !== revision)
+                  : [...current, revision],
+              });
+            }}
+            onClear={() => update({ revisions: [] })}
+          />
+        ),
+        width: "120px",
         render: (row) => row.revision,
       },
       {
         id: "status",
-        header: "Status",
-        width: "120px",
-        sortable: true,
+        header: (
+          <StatusFilter
+            selected={query.statuses}
+            onToggle={(status) => {
+              const current = queryRef.current.statuses;
+              update({
+                statuses: current.includes(status) ? current.filter((item) => item !== status) : [...current, status],
+              });
+            }}
+            onClear={() => update({ statuses: [] })}
+          />
+        ),
+        width: "140px",
         render: (row) => <StatusTag tone={statusTone(row.status)}>{statusLabel(row.status)}</StatusTag>,
       },
       {
         id: "owner",
         header: "Owner",
         width: "104px",
-        sortable: true,
         render: (row) => row.owner,
       },
       {
         id: "effective",
-        header: "Effective Date",
-        width: "124px",
-        sortable: true,
+        header: (
+          <SortFilter
+            label="Effective Date"
+            sortKey="effective"
+            activeKey={query.sort}
+            dir={query.dir}
+            onChange={(sort, dir) => update({ sort, dir })}
+          />
+        ),
+        width: "156px",
         render: (row) => formatDate(row.effectiveDate),
       },
       {
         id: "updated",
-        header: "Last Updated",
+        header: (
+          <SortFilter
+            label="Last Update"
+            sortKey="updated"
+            activeKey={query.sort}
+            dir={query.dir}
+            onChange={(sort, dir) => update({ sort, dir })}
+          />
+        ),
         width: "168px",
-        sortable: true,
         render: (row) => formatDateTime(row.updatedAt),
       },
     ],
-    [location.search],
+    [assemblies, location.search, products, query.dir, query.product, query.revisions, query.sort, query.statuses],
   );
-
-  function onSort(id: string) {
-    const key = id as SortKey;
-    if (query.sort === key) {
-      update({ dir: query.dir === "asc" ? "desc" : "asc" });
-      return;
-    }
-    const textKeys = new Set<SortKey>(["id", "product", "revision", "status", "owner"]);
-    update({ sort: key, dir: textKeys.has(key) ? "asc" : "desc" });
-  }
 
   return (
     <div className="page">
       <TopbarSlot>
         <SearchField
-          label="Search by product, model, assembly, or part number"
+          label="Search by product, model, assembly, or part number."
           value={draft}
           onValueChange={(value) => {
             setDraft(value);
             update({ q: value });
           }}
         />
-        <FilterPopover query={query} activeCount={activeFilterCount(query)} onChange={update} />
         <Button variant="primary" icon={<Plus size={16} />}>
           Add BOM
         </Button>
@@ -168,7 +215,6 @@ export function BomListPage() {
           });
         }}
         sort={{ id: query.sort, dir: query.dir }}
-        onSort={onSort}
         onRowClick={(row) => openDetail(row.id)}
         trailing={(row) => <KebabMenu label="View detail" onSelect={() => openDetail(row.id)} />}
       />

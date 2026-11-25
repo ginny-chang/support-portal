@@ -62,7 +62,7 @@ export function SearchField({ label, value, onValueChange }: SearchFieldProps) {
       <input
         value={value}
         aria-label={label}
-        placeholder="Search"
+        placeholder={label}
         onChange={(event) => onValueChange(event.target.value)}
       />
     </label>

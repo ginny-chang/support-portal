@@ -5,12 +5,12 @@ import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable, TableSkeleton } from "../components/DataTable";
 import { SearchField, SelectField, TextField } from "../components/Fields";
-import { FilterForm } from "../components/FilterPopover";
+import { ProductFilter, RevisionFilter, SortFilter, StatusFilter } from "../components/HeaderFilters";
 import { StatusTag } from "../components/StatusTag";
 import { Tabs } from "../components/Tabs";
 import type { TagTone } from "../data/labels";
-import { defaultQuery } from "../data/query";
-import type { BomQuery } from "../data/query";
+import type { BomStatus } from "../data/bom";
+import type { SortDir, SortKey } from "../data/query";
 
 const meta = {
   title: "Components/Library",
@@ -164,12 +164,41 @@ function TableDemo() {
 export const Filters: StoryObj = { render: () => <FilterDemo /> };
 
 function FilterDemo() {
-  const [query, setQuery] = useState<BomQuery>(defaultQuery);
+  const [revisions, setRevisions] = useState<string[]>([]);
+  const [statuses, setStatuses] = useState<BomStatus[]>([]);
+  const [product, setProduct] = useState("");
+  const [sort, setSort] = useState<SortKey>("updated");
+  const [dir, setDir] = useState<SortDir>("desc");
   return (
-    <FilterForm
-      staticPanel
-      query={query}
-      onChange={(partial) => setQuery((current) => ({ ...current, ...partial }))}
-    />
+    <div className="summary-tools">
+      <RevisionFilter
+        revisions={["A", "B", "C"]}
+        selected={revisions}
+        onToggle={(revision) =>
+          setRevisions((current) =>
+            current.includes(revision) ? current.filter((item) => item !== revision) : [...current, revision],
+          )
+        }
+        onClear={() => setRevisions([])}
+      />
+      <StatusFilter
+        selected={statuses}
+        onToggle={(status) =>
+          setStatuses((current) =>
+            current.includes(status) ? current.filter((item) => item !== status) : [...current, status],
+          )
+        }
+        onClear={() => setStatuses([])}
+      />
+      <ProductFilter
+        products={["TCR Advanced SL"]}
+        assemblies={["Frame assembly"]}
+        selected={product}
+        onChange={setProduct}
+      />
+      <SortFilter label="Last Update" sortKey="updated" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+      <SortFilter label="Effective Date" sortKey="effective" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+      <SortFilter label="BOM ID" sortKey="id" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+    </div>
   );
 }

@@ -1,49 +1,43 @@
 import type { BomRecord, BomStatus } from "./bom";
-import { STATUS_SORT } from "./labels";
 import { normalizeSearch } from "./format";
 
-export type TabId = "all" | "draft" | "in_review" | "released" | "retired";
-export type ExactStatus = "" | "superseded" | "obsolete";
-export type SortKey = "id" | "product" | "revision" | "status" | "owner" | "effective" | "updated";
+export type SortKey = "updated" | "effective" | "id";
 export type SortDir = "asc" | "desc";
 
 export interface BomQuery {
-  tab: TabId;
   q: string;
-  rev: string;
-  from: string;
-  to: string;
-  exact: ExactStatus;
+  revisions: string[];
+  statuses: BomStatus[];
+  product: string;
   sort: SortKey;
   dir: SortDir;
 }
 
 export const defaultQuery: BomQuery = {
-  tab: "all",
   q: "",
-  rev: "",
-  from: "",
-  to: "",
-  exact: "",
+  revisions: [],
+  statuses: [],
+  product: "",
   sort: "updated",
   dir: "desc",
 };
 
-const tabs = new Set<TabId>(["all", "draft", "in_review", "released", "retired"]);
-const sorts = new Set<SortKey>(["id", "product", "revision", "status", "owner", "effective", "updated"]);
+const statuses = new Set<BomStatus>(["draft", "in_review", "released", "superseded", "obsolete"]);
+const sorts = new Set<SortKey>(["updated", "effective", "id"]);
+
+function splitList(value: string | null): string[] {
+  if (!value) return [];
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
 
 export function parseQuery(params: URLSearchParams): BomQuery {
-  const tab = params.get("tab");
   const sort = params.get("sort");
   const dir = params.get("dir");
-  const exact = params.get("exact");
   return {
-    tab: tab && tabs.has(tab as TabId) ? (tab as TabId) : "all",
     q: params.get("q") ?? "",
-    rev: params.get("rev") ?? "",
-    from: params.get("from") ?? "",
-    to: params.get("to") ?? "",
-    exact: exact === "superseded" || exact === "obsolete" ? exact : "",
+    revisions: splitList(params.get("rev")),
+    statuses: splitList(params.get("status")).filter((item): item is BomStatus => statuses.has(item as BomStatus)),
+    product: params.get("product") ?? "",
     sort: sort && sorts.has(sort as SortKey) ? (sort as SortKey) : "updated",
     dir: dir === "asc" || dir === "desc" ? dir : "desc",
   };
@@ -51,40 +45,13 @@ export function parseQuery(params: URLSearchParams): BomQuery {
 
 export function toSearchParams(query: BomQuery): URLSearchParams {
   const params = new URLSearchParams();
-  if (query.tab !== "all") params.set("tab", query.tab);
   if (query.q) params.set("q", query.q);
-  if (query.rev) params.set("rev", query.rev);
-  if (query.from) params.set("from", query.from);
-  if (query.to) params.set("to", query.to);
-  if (query.exact) params.set("exact", query.exact);
+  if (query.revisions.length) params.set("rev", query.revisions.join(","));
+  if (query.statuses.length) params.set("status", query.statuses.join(","));
+  if (query.product) params.set("product", query.product);
   if (query.sort !== "updated") params.set("sort", query.sort);
   if (query.dir !== "desc") params.set("dir", query.dir);
   return params;
-}
-
-export function activeFilterCount(query: BomQuery): number {
-  return [query.rev, query.from, query.to, query.exact].filter(Boolean).length;
-}
-
-export function statusValue(query: BomQuery): string {
-  if (query.exact) return query.exact;
-  return query.tab;
-}
-
-export function statusPartial(value: string): Partial<BomQuery> {
-  if (value === "superseded" || value === "obsolete") {
-    return { tab: "retired", exact: value };
-  }
-  const tab: TabId = value === "draft" || value === "in_review" || value === "released" || value === "retired" ? value : "all";
-  return { tab, exact: "" };
-}
-
-function matchesTab(status: BomStatus, query: BomQuery): boolean {
-  if (query.exact === "superseded") return status === "superseded";
-  if (query.exact === "obsolete") return status === "obsolete";
-  if (query.tab === "all") return true;
-  if (query.tab === "retired") return status === "superseded" || status === "obsolete";
-  return status === query.tab;
 }
 
 function haystack(record: BomRecord): string {
@@ -93,12 +60,8 @@ function haystack(record: BomRecord): string {
       record.id,
       record.product,
       record.assembly,
-      record.owner,
-      record.revision,
       record.applicability.model,
-      record.applicability.category,
       ...record.lines.flatMap((line) => [line.partId, line.description]),
-      ...record.supersessions.flatMap((item) => [item.fromPartId, item.toPartId]),
     ].join(" "),
   );
 }
@@ -106,20 +69,17 @@ function haystack(record: BomRecord): string {
 export function filterBoms(records: BomRecord[], query: BomQuery): BomRecord[] {
   const needle = normalizeSearch(query.q);
   return records.filter((record) => {
-    if (!matchesTab(record.status, query)) return false;
-    if (query.rev && record.revision !== query.rev) return false;
-    if (query.from || query.to) {
-      if (!record.effectiveDate) return false;
-      if (query.from && record.effectiveDate < query.from) return false;
-      if (query.to && record.effectiveDate > query.to) return false;
-    }
+    if (query.revisions.length && !query.revisions.includes(record.revision)) return false;
+    if (query.statuses.length && !query.statuses.includes(record.status)) return false;
+    if (query.product.startsWith("product:") && record.product !== query.product.slice("product:".length)) return false;
+    if (query.product.startsWith("assembly:") && record.assembly !== query.product.slice("assembly:".length)) return false;
     if (needle && !haystack(record).includes(needle)) return false;
     return true;
   });
 }
 
 function compareText(left: string, right: string): number {
-  return left.localeCompare(right, "zh-Hant");
+  return left.localeCompare(right, "en");
 }
 
 export function sortBoms(records: BomRecord[], query: BomQuery): BomRecord[] {
@@ -130,23 +90,11 @@ export function sortBoms(records: BomRecord[], query: BomQuery): BomRecord[] {
       case "id":
         result = compareText(left.id, right.id);
         break;
-      case "product":
-        result = compareText(left.product, right.product) || compareText(left.assembly, right.assembly);
-        break;
-      case "revision":
-        result = compareText(left.revision, right.revision);
-        break;
-      case "status":
-        result = STATUS_SORT[left.status] - STATUS_SORT[right.status];
-        break;
-      case "owner":
-        result = compareText(left.owner, right.owner);
-        break;
       case "effective":
-        if (left.effectiveDate === right.effectiveDate) result = 0;
+        if (!left.effectiveDate && !right.effectiveDate) result = 0;
         else if (!left.effectiveDate) return 1;
         else if (!right.effectiveDate) return -1;
-        else result = left.effectiveDate < right.effectiveDate ? -1 : 1;
+        else result = left.effectiveDate < right.effectiveDate ? -1 : left.effectiveDate > right.effectiveDate ? 1 : 0;
         break;
       case "updated":
         result = left.updatedAt < right.updatedAt ? -1 : left.updatedAt > right.updatedAt ? 1 : 0;

@@ -4,7 +4,7 @@ import { Checkbox } from "./Checkbox";
 
 export interface Column<T> {
   id: string;
-  header: string;
+  header: ReactNode;
   width?: string;
   align?: "left" | "right";
   sortable?: boolean;
