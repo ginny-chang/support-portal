@@ -1,9 +1,19 @@
 import { ArrowLeft } from "lucide-react";
-import { useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { boms } from "../data/bom";
 import { filterBoms, parseQuery } from "../data/query";
 import { Sidebar } from "./Sidebar";
+
+const TopbarSlotContext = createContext<HTMLDivElement | null>(null);
+
+export function TopbarSlot({ children }: { children: ReactNode }) {
+  const slot = useContext(TopbarSlotContext);
+  if (!slot) return null;
+  return createPortal(children, slot);
+}
 
 function listFrom(state: unknown): string {
   if (state && typeof state === "object" && "from" in state && typeof state.from === "string") {
@@ -20,6 +30,7 @@ export function AppShell() {
   const backTo = `/bom${listFrom(location.state)}`;
   const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
   const count = filterBoms(boms, parseQuery(countParams)).length;
+  const [topbarSlot, setTopbarSlot] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     document.title = detail ? "Service BOM detail · Giant Support Portal" : "Service BOM · Giant Support Portal";
@@ -27,6 +38,7 @@ export function AppShell() {
 
   return (
     <div className="app-frame">
+      <TopbarSlotContext.Provider value={topbarSlot}>
       <div className="shell">
         <Sidebar />
         <div className="main">
@@ -44,12 +56,14 @@ export function AppShell() {
                 {count}
               </span>
             </div>
+            <div className="topbar-actions" ref={setTopbarSlot} />
           </header>
           <div className="content">
             <Outlet />
           </div>
         </div>
       </div>
+      </TopbarSlotContext.Provider>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { formatDate, formatDateTime } from "../data/format";
 import { statusLabel, statusTone } from "../data/labels";
 import { activeFilterCount, filterBoms, parseQuery, sortBoms, toSearchParams } from "../data/query";
 import type { BomQuery, SortKey } from "../data/query";
+import { TopbarSlot } from "../components/AppShell";
 import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
@@ -130,22 +131,20 @@ export function BomListPage() {
 
   return (
     <div className="page">
-      <div className="summary">
-        <div className="summary-tools">
-          <SearchField
-            label="Search by product, model, assembly, or part number"
-            value={draft}
-            onValueChange={(value) => {
-              setDraft(value);
-              update({ q: value });
-            }}
-          />
-          <FilterPopover query={query} activeCount={activeFilterCount(query)} onChange={update} />
-        </div>
+      <TopbarSlot>
+        <SearchField
+          label="Search by product, model, assembly, or part number"
+          value={draft}
+          onValueChange={(value) => {
+            setDraft(value);
+            update({ q: value });
+          }}
+        />
+        <FilterPopover query={query} activeCount={activeFilterCount(query)} onChange={update} />
         <Button variant="primary" icon={<Plus size={16} />}>
           Add BOM
         </Button>
-      </div>
+      </TopbarSlot>
       <DataTable
         caption="Service BOM"
         columns={columns}
