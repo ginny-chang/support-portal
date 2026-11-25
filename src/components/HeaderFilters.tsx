@@ -1,4 +1,4 @@
-import { Check, ListFilter } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import type { BomStatus } from "../data/bom";
@@ -28,10 +28,12 @@ function useDismiss(open: boolean, onClose: () => void, ref: RefObject<HTMLDivEl
 function HeaderMenu({
   label,
   active,
+  icon,
   children,
 }: {
   label: string;
   active: boolean;
+  icon: ReactNode;
   children: (close: () => void) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -47,7 +49,7 @@ function HeaderMenu({
         onClick={() => setOpen((value) => !value)}
       >
         {label}
-        <ListFilter size={12} aria-hidden="true" />
+        {icon}
       </button>
       {open ? (
         <div className="header-menu" role="group" aria-label={label}>
@@ -70,7 +72,7 @@ export function RevisionFilter({
   onClear: () => void;
 }) {
   return (
-    <HeaderMenu label="Revision" active={selected.length > 0}>
+    <HeaderMenu label="Revision" active={selected.length > 0} icon={<ChevronDown size={12} aria-hidden="true" />}>
       {() => (
         <>
           {revisions.map((revision) => (
@@ -98,7 +100,7 @@ export function StatusFilter({
   onClear: () => void;
 }) {
   return (
-    <HeaderMenu label="Status" active={selected.length > 0}>
+    <HeaderMenu label="Status" active={selected.length > 0} icon={<ChevronDown size={12} aria-hidden="true" />}>
       {() => (
         <>
           {statusChoices.map((status) => (
@@ -128,7 +130,7 @@ export function ProductFilter({
   onChange: (value: string) => void;
 }) {
   return (
-    <HeaderMenu label="Product or Assembly" active={selected !== ""}>
+    <HeaderMenu label="Product or Assembly" active={selected !== ""} icon={<ChevronDown size={12} aria-hidden="true" />}>
       {(close) => (
         <>
           <button
@@ -195,8 +197,15 @@ export function SortFilter({
   onChange: (sort: SortKey, dir: SortDir) => void;
 }) {
   const active = activeKey === sortKey;
+  const icon = !active ? (
+    <ChevronsUpDown size={12} aria-hidden="true" />
+  ) : dir === "asc" ? (
+    <ChevronUp size={12} aria-hidden="true" />
+  ) : (
+    <ChevronDown size={12} aria-hidden="true" />
+  );
   return (
-    <HeaderMenu label={label} active={active}>
+    <HeaderMenu label={label} active={active} icon={icon}>
       {(close) => (
         <>
           <SortChoice
