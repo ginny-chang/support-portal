@@ -4,11 +4,13 @@ import { normalizeSearch } from "./format";
 export type SortKey = "updated" | "effective" | "id";
 export type SortDir = "asc" | "desc";
 
+export type ColumnFocus = "" | "product" | "assembly";
+
 export interface BomQuery {
   q: string;
   revisions: string[];
   statuses: BomStatus[];
-  product: string;
+  column: ColumnFocus;
   sort: SortKey;
   dir: SortDir;
 }
@@ -17,7 +19,7 @@ export const defaultQuery: BomQuery = {
   q: "",
   revisions: [],
   statuses: [],
-  product: "",
+  column: "",
   sort: "updated",
   dir: "desc",
 };
@@ -33,11 +35,12 @@ function splitList(value: string | null): string[] {
 export function parseQuery(params: URLSearchParams): BomQuery {
   const sort = params.get("sort");
   const dir = params.get("dir");
+  const column = params.get("column");
   return {
     q: params.get("q") ?? "",
     revisions: splitList(params.get("rev")),
     statuses: splitList(params.get("status")).filter((item): item is BomStatus => statuses.has(item as BomStatus)),
-    product: params.get("product") ?? "",
+    column: column === "product" || column === "assembly" ? column : "",
     sort: sort && sorts.has(sort as SortKey) ? (sort as SortKey) : "updated",
     dir: dir === "asc" || dir === "desc" ? dir : "desc",
   };
@@ -48,7 +51,7 @@ export function toSearchParams(query: BomQuery): URLSearchParams {
   if (query.q) params.set("q", query.q);
   if (query.revisions.length) params.set("rev", query.revisions.join(","));
   if (query.statuses.length) params.set("status", query.statuses.join(","));
-  if (query.product) params.set("product", query.product);
+  if (query.column) params.set("column", query.column);
   if (query.sort !== "updated") params.set("sort", query.sort);
   if (query.dir !== "desc") params.set("dir", query.dir);
   return params;
@@ -71,8 +74,6 @@ export function filterBoms(records: BomRecord[], query: BomQuery): BomRecord[] {
   return records.filter((record) => {
     if (query.revisions.length && !query.revisions.includes(record.revision)) return false;
     if (query.statuses.length && !query.statuses.includes(record.status)) return false;
-    if (query.product.startsWith("product:") && record.product !== query.product.slice("product:".length)) return false;
-    if (query.product.startsWith("assembly:") && record.assembly !== query.product.slice("assembly:".length)) return false;
     if (needle && !haystack(record).includes(needle)) return false;
     return true;
   });

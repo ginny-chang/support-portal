@@ -12,7 +12,7 @@ import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
-import { ProductFilter, RevisionFilter, SortFilter, StatusFilter } from "../components/HeaderFilters";
+import { ProductFilter, RevisionFilter, SortHeader, StatusFilter } from "../components/HeaderFilters";
 import { KebabMenu } from "../components/KebabMenu";
 import { StatusTag } from "../components/StatusTag";
 
@@ -45,21 +45,12 @@ export function BomListPage() {
     navigate(`/bom/${id}`, { state: { from: location.search } });
   }
 
-  const products = useMemo(
-    () => [...new Set(boms.map((item) => item.product))].sort((left, right) => left.localeCompare(right, "en")),
-    [],
-  );
-  const assemblies = useMemo(
-    () => [...new Set(boms.map((item) => item.assembly))].sort((left, right) => left.localeCompare(right, "en")),
-    [],
-  );
-
   const columns = useMemo<Column<BomRecord>[]>(
     () => [
       {
         id: "id",
         header: (
-          <SortFilter
+          <SortHeader
             label="BOM ID"
             sortKey="id"
             activeKey={query.sort}
@@ -82,25 +73,24 @@ export function BomListPage() {
       {
         id: "product",
         header: (
-          <ProductFilter
-            products={products}
-            assemblies={assemblies}
-            selected={query.product}
-            onChange={(product) => update({ product })}
-          />
+          <ProductFilter selected={query.column} onChange={(column) => update({ column })} />
         ),
-        render: (row) => (
-          <div className="product-cell">
-            <Link
-              to={`/bom/${row.id}`}
-              state={{ from: location.search }}
-              onClick={(event) => event.stopPropagation()}
-            >
-              {row.product}
-            </Link>
-            <span>{row.assembly}</span>
-          </div>
-        ),
+        render: (row) => {
+          const primary = query.column === "assembly" ? row.assembly : row.product;
+          const secondary = query.column === "" ? row.assembly : null;
+          return (
+            <div className="product-cell">
+              <Link
+                to={`/bom/${row.id}`}
+                state={{ from: location.search }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                {primary}
+              </Link>
+              {secondary ? <span>{secondary}</span> : null}
+            </div>
+          );
+        },
       },
       {
         id: "revision",
@@ -148,7 +138,7 @@ export function BomListPage() {
       {
         id: "effective",
         header: (
-          <SortFilter
+          <SortHeader
             label="Effective Date"
             sortKey="effective"
             activeKey={query.sort}
@@ -162,7 +152,7 @@ export function BomListPage() {
       {
         id: "updated",
         header: (
-          <SortFilter
+          <SortHeader
             label="Last Update"
             sortKey="updated"
             activeKey={query.sort}
@@ -174,7 +164,7 @@ export function BomListPage() {
         render: (row) => formatDateTime(row.updatedAt),
       },
     ],
-    [assemblies, location.search, products, query.dir, query.product, query.revisions, query.sort, query.statuses],
+    [location.search, query.column, query.dir, query.revisions, query.sort, query.statuses],
   );
 
   return (

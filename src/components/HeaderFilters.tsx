@@ -1,9 +1,10 @@
-import { Check, ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import type { BomStatus } from "../data/bom";
-import { statusLabel } from "../data/labels";
-import type { SortDir, SortKey } from "../data/query";
+import { statusLabel, statusTone } from "../data/labels";
+import type { ColumnFocus, SortDir, SortKey } from "../data/query";
+import { StatusTag } from "./StatusTag";
 
 const statusChoices: BomStatus[] = ["draft", "in_review", "released", "superseded", "obsolete"];
 
@@ -104,9 +105,9 @@ export function StatusFilter({
       {() => (
         <>
           {statusChoices.map((status) => (
-            <label key={status} className="menu-check">
+            <label key={status} className={selected.includes(status) ? "menu-check is-checked" : "menu-check"}>
               <input type="checkbox" checked={selected.includes(status)} onChange={() => onToggle(status)} />
-              {statusLabel(status)}
+              <StatusTag tone={statusTone(status)}>{statusLabel(status)}</StatusTag>
             </label>
           ))}
           <button type="button" className="menu-clear" onClick={onClear}>
@@ -118,72 +119,42 @@ export function StatusFilter({
   );
 }
 
+const columnChoices: { value: Exclude<ColumnFocus, "">; label: string }[] = [
+  { value: "product", label: "Product" },
+  { value: "assembly", label: "Assembly" },
+];
+
 export function ProductFilter({
-  products,
-  assemblies,
   selected,
   onChange,
 }: {
-  products: string[];
-  assemblies: string[];
-  selected: string;
-  onChange: (value: string) => void;
+  selected: ColumnFocus;
+  onChange: (value: ColumnFocus) => void;
 }) {
   return (
     <HeaderMenu label="Product or Assembly" active={selected !== ""} icon={<ChevronDown size={12} aria-hidden="true" />}>
       {(close) => (
         <>
-          <button
-            type="button"
-            className={selected === "" ? "menu-option is-active" : "menu-option"}
-            onClick={() => {
-              onChange("");
-              close();
-            }}
-          >
-            All
-          </button>
-          <div className="menu-label">Product</div>
-          {products.map((product) => {
-            const value = `product:${product}`;
-            return (
-              <button
-                key={value}
-                type="button"
-                className={selected === value ? "menu-option is-active" : "menu-option"}
-                onClick={() => {
-                  onChange(value);
-                  close();
-                }}
-              >
-                {product}
-              </button>
-            );
-          })}
-          <div className="menu-label">Assembly</div>
-          {assemblies.map((assembly) => {
-            const value = `assembly:${assembly}`;
-            return (
-              <button
-                key={value}
-                type="button"
-                className={selected === value ? "menu-option is-active" : "menu-option"}
-                onClick={() => {
-                  onChange(value);
-                  close();
-                }}
-              >
-                {assembly}
-              </button>
-            );
-          })}
+          {columnChoices.map((choice) => (
+            <button
+              key={choice.value}
+              type="button"
+              className={selected === choice.value ? "menu-option is-active" : "menu-option"}
+              onClick={() => {
+                onChange(choice.value);
+                close();
+              }}
+            >
+              {choice.label}
+            </button>
+          ))}
         </>
       )}
     </HeaderMenu>
   );
 }
 
-export function SortFilter({
+export function SortHeader({
   label,
   sortKey,
   activeKey,
@@ -205,36 +176,13 @@ export function SortFilter({
     <ChevronDown size={12} aria-hidden="true" />
   );
   return (
-    <HeaderMenu label={label} active={active} icon={icon}>
-      {(close) => (
-        <>
-          <SortChoice
-            label="Newest to oldest"
-            selected={active && dir === "desc"}
-            onClick={() => {
-              onChange(sortKey, "desc");
-              close();
-            }}
-          />
-          <SortChoice
-            label="Oldest to newest"
-            selected={active && dir === "asc"}
-            onClick={() => {
-              onChange(sortKey, "asc");
-              close();
-            }}
-          />
-        </>
-      )}
-    </HeaderMenu>
-  );
-}
-
-function SortChoice({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
-  return (
-    <button type="button" className={selected ? "menu-option is-active" : "menu-option"} onClick={onClick}>
-      {selected ? <Check size={14} aria-hidden="true" /> : <span className="menu-option-gap" />}
+    <button
+      type="button"
+      className={active ? "sort-btn is-active" : "sort-btn"}
+      onClick={() => onChange(sortKey, active && dir === "desc" ? "asc" : "desc")}
+    >
       {label}
+      {icon}
     </button>
   );
 }

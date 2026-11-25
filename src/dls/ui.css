@@ -155,6 +155,10 @@
   box-shadow: var(--shadow-pop);
 }
 
+.menu-check .tag {
+  pointer-events: none;
+}
+
 .menu-check,
 .menu-option {
   display: flex;

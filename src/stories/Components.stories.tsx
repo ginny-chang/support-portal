@@ -5,12 +5,12 @@ import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable, TableSkeleton } from "../components/DataTable";
 import { SearchField, SelectField, TextField } from "../components/Fields";
-import { ProductFilter, RevisionFilter, SortFilter, StatusFilter } from "../components/HeaderFilters";
+import { ProductFilter, RevisionFilter, SortHeader, StatusFilter } from "../components/HeaderFilters";
 import { StatusTag } from "../components/StatusTag";
 import { Tabs } from "../components/Tabs";
 import type { TagTone } from "../data/labels";
 import type { BomStatus } from "../data/bom";
-import type { SortDir, SortKey } from "../data/query";
+import type { ColumnFocus, SortDir, SortKey } from "../data/query";
 
 const meta = {
   title: "Components/Library",
@@ -166,7 +166,7 @@ export const Filters: StoryObj = { render: () => <FilterDemo /> };
 function FilterDemo() {
   const [revisions, setRevisions] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<BomStatus[]>([]);
-  const [product, setProduct] = useState("");
+  const [column, setColumn] = useState<ColumnFocus>("");
   const [sort, setSort] = useState<SortKey>("updated");
   const [dir, setDir] = useState<SortDir>("desc");
   return (
@@ -190,15 +190,10 @@ function FilterDemo() {
         }
         onClear={() => setStatuses([])}
       />
-      <ProductFilter
-        products={["TCR Advanced SL"]}
-        assemblies={["Frame assembly"]}
-        selected={product}
-        onChange={setProduct}
-      />
-      <SortFilter label="Last Update" sortKey="updated" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
-      <SortFilter label="Effective Date" sortKey="effective" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
-      <SortFilter label="BOM ID" sortKey="id" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+      <ProductFilter selected={column} onChange={setColumn} />
+      <SortHeader label="Last Update" sortKey="updated" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+      <SortHeader label="Effective Date" sortKey="effective" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
+      <SortHeader label="BOM ID" sortKey="id" activeKey={sort} dir={dir} onChange={(next, order) => { setSort(next); setDir(order); }} />
     </div>
   );
 }
