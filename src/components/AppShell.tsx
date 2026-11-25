@@ -1,9 +1,8 @@
-import { Bell, CircleHelp } from "lucide-react";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { defaultQuery, parseQuery, toSearchParams } from "../data/query";
-import { SearchField } from "./Fields";
+import { useEffect } from "react";
+import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
+import { boms } from "../data/bom";
+import { filterBoms, parseQuery } from "../data/query";
 import { Sidebar } from "./Sidebar";
 
 function listFrom(state: unknown): string {
@@ -15,25 +14,16 @@ function listFrom(state: unknown): string {
 
 export function AppShell() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const onList = location.pathname === "/bom";
   const detail = location.pathname.startsWith("/bom/");
   const backTo = `/bom${listFrom(location.state)}`;
-  const [draft, setDraft] = useState(() => parseQuery(params).q);
+  const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
+  const count = filterBoms(boms, parseQuery(countParams)).length;
 
   useEffect(() => {
     document.title = detail ? "Service BOM detail · Giant Support Portal" : "Service BOM · Giant Support Portal";
   }, [detail]);
-
-  function updateQuery(value: string) {
-    setDraft(value);
-    if (onList) {
-      setParams((current) => toSearchParams({ ...parseQuery(current), q: value }), { replace: true });
-      return;
-    }
-    navigate({ pathname: "/bom", search: toSearchParams({ ...defaultQuery, q: value }).toString() });
-  }
 
   return (
     <div className="app-frame">
@@ -50,28 +40,9 @@ export function AppShell() {
               ) : (
                 <h1>Service BOM</h1>
               )}
-            </div>
-            <SearchField
-              label="Search by product, model, assembly, or part number"
-              value={draft}
-              onValueChange={updateQuery}
-            />
-            <div className="topbar-actions">
-              <button type="button" className="icon-btn" disabled aria-label="Notifications">
-                <Bell size={18} />
-              </button>
-              <button type="button" className="icon-btn" disabled aria-label="Help">
-                <CircleHelp size={18} />
-              </button>
-              <div className="user">
-                <div className="avatar" aria-hidden="true">
-                  陳
-                </div>
-                <div>
-                  <div className="user-name">陳宜安</div>
-                  <div className="user-role">Service engineer</div>
-                </div>
-              </div>
+              <span className="title-count" aria-label={`${count} Service BOM`}>
+                {count}
+              </span>
             </div>
           </header>
           <div className="content">

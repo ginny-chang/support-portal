@@ -1,4 +1,4 @@
-import { Layers, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { boms } from "../data/bom";
@@ -6,22 +6,14 @@ import type { BomRecord } from "../data/bom";
 import { formatDate, formatDateTime } from "../data/format";
 import { statusLabel, statusTone } from "../data/labels";
 import { activeFilterCount, filterBoms, parseQuery, sortBoms, toSearchParams } from "../data/query";
-import type { BomQuery, SortKey, TabId } from "../data/query";
+import type { BomQuery, SortKey } from "../data/query";
 import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
+import { SearchField } from "../components/Fields";
 import { FilterPopover } from "../components/FilterPopover";
 import { KebabMenu } from "../components/KebabMenu";
 import { StatusTag } from "../components/StatusTag";
-import { Tabs } from "../components/Tabs";
-
-const tabs: { id: TabId; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "draft", label: "Draft" },
-  { id: "in_review", label: "In Review" },
-  { id: "released", label: "Released" },
-  { id: "retired", label: "Superseded or Obsolete" },
-];
 
 export function BomListPage() {
   const [params, setParams] = useSearchParams();
@@ -31,6 +23,7 @@ export function BomListPage() {
   const query = useMemo(() => parseQuery(new URLSearchParams(search)), [search]);
   const queryRef = useRef(query);
   queryRef.current = query;
+  const [draft, setDraft] = useState(query.q);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   function update(partial: Partial<BomQuery>) {
@@ -137,25 +130,21 @@ export function BomListPage() {
 
   return (
     <div className="page">
-      <Tabs
-        label="BOM status"
-        items={tabs}
-        value={query.tab}
-        onChange={(id) => update({ tab: id as TabId, exact: "" })}
-      />
       <div className="summary">
-        <div className="summary-count">
-          <span className="count-icon">
-            <Layers size={16} aria-hidden="true" />
-          </span>
-          <span aria-live="polite">{rows.length} Service BOM</span>
-        </div>
-        <div className="summary-actions">
+        <div className="summary-tools">
+          <SearchField
+            label="Search by product, model, assembly, or part number"
+            value={draft}
+            onValueChange={(value) => {
+              setDraft(value);
+              update({ q: value });
+            }}
+          />
           <FilterPopover query={query} activeCount={activeFilterCount(query)} onChange={update} />
-          <Button variant="primary" icon={<Plus size={16} />}>
-            Add BOM
-          </Button>
         </div>
+        <Button variant="primary" icon={<Plus size={16} />}>
+          Add BOM
+        </Button>
       </div>
       <DataTable
         caption="Service BOM"

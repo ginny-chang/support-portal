@@ -81,6 +81,15 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+      <div className="sidebar-account">
+        <div className="avatar" aria-hidden="true">
+          陳
+        </div>
+        <div>
+          <div className="user-name">陳宜安</div>
+          <div className="user-role">Service engineer</div>
+        </div>
+      </div>
     </aside>
   );
 }
