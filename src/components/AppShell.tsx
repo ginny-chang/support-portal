@@ -60,14 +60,14 @@ export function AppShell() {
                 </Link>
               ) : null}
               {detail ? (
-                <Link className="crumb" to={backTo}>
-                  <ArrowLeft size={18} aria-hidden="true" />
+                <Link className="crumb crumb-parent" to={backTo}>
+                  <ArrowLeft size={14} aria-hidden="true" />
                   Service BOM
                 </Link>
               ) : (
                 <h1>{creating ? "Add BOM" : editing ? "Update BOM" : "Service BOM"}</h1>
               )}
-              {creating || editing ? null : (
+              {onList ? (
                 <span className="title-count" aria-label={`${count} Service BOM`}>
                   {count}
                 </span>

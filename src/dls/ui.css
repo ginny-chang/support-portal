@@ -265,6 +265,13 @@
   color: var(--color-primary);
 }
 
+.crumb-parent {
+  font-size: var(--font-size-14);
+  font-weight: var(--font-medium);
+  letter-spacing: 0;
+  color: var(--color-text-secondary);
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
