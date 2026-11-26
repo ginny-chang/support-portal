@@ -212,6 +212,21 @@ export function BomCreatePage() {
         )}
       </div>
 
+      <div className="create-grid">
+        <label className="field">
+          <span className="field-label">Revision</span>
+          <input className="control" value={revision} readOnly aria-label="Revision" />
+        </label>
+        <label className="field">
+          <span className="field-label">Status</span>
+          <input className="control" value="Draft" readOnly />
+        </label>
+        <label className="field field-wide">
+          <span className="field-label">Reason</span>
+          <input className="control" value={reason} onChange={(event) => setReason(event.target.value)} />
+        </label>
+      </div>
+
       <h2 className="section-title">Applicability</h2>
       <div className="create-grid">
         <label className="field">
@@ -233,21 +248,6 @@ export function BomCreatePage() {
         <label className="field">
           <span className="field-label">Market</span>
           <input className="control" value={market} onChange={(event) => setMarket(event.target.value)} />
-        </label>
-      </div>
-
-      <div className="create-grid">
-        <label className="field">
-          <span className="field-label">Revision</span>
-          <input className="control" value={revision} readOnly aria-label="Revision" />
-        </label>
-        <label className="field">
-          <span className="field-label">Status</span>
-          <input className="control" value="Draft" readOnly />
-        </label>
-        <label className="field field-wide">
-          <span className="field-label">Reason</span>
-          <input className="control" value={reason} onChange={(event) => setReason(event.target.value)} />
         </label>
       </div>
 
