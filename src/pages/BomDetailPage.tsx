@@ -158,13 +158,15 @@ export function BomDetailPage() {
       ) : null}
       <div className="detail">
         <div>
-          <h1>{record.product || record.assembly}</h1>
+          <div className="detail-title">
+            <h1>{record.product || record.assembly}</h1>
+            <StatusTag tone={statusTone(record.status)}>{statusLabel(record.status)}</StatusTag>
+          </div>
           {record.product && record.assembly ? <p className="detail-assembly">{record.assembly}</p> : null}
           <div className="detail-idline">
             {record.product && record.assembly ? null : <span>{record.product ? "Product" : "Assembly"}</span>}
             <span>{record.id}</span>
             <span>Revision {record.revision}</span>
-            <StatusTag tone={statusTone(record.status)}>{statusLabel(record.status)}</StatusTag>
           </div>
           <dl className="meta-grid">
             <div>
