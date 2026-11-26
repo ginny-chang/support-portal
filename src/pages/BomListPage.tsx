@@ -1,10 +1,11 @@
 import { Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { boms, revisions } from "../data/bom";
+import { revisions } from "../data/bom";
 import type { BomRecord } from "../data/bom";
 import { formatDate, formatDateTime } from "../data/format";
 import { statusLabel, statusTone } from "../data/labels";
+import { useBomCatalog } from "../data/bomCatalog";
 import { filterBoms, parseQuery, sortBoms, toSearchParams } from "../data/query";
 import type { BomQuery } from "../data/query";
 import { TopbarSlot } from "../components/AppShell";
@@ -17,6 +18,7 @@ import { KebabMenu } from "../components/KebabMenu";
 import { StatusTag } from "../components/StatusTag";
 
 export function BomListPage() {
+  const { records } = useBomCatalog();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +35,7 @@ export function BomListPage() {
     setParams(toSearchParams(next), { replace: true });
   }
 
-  const rows = useMemo(() => sortBoms(filterBoms(boms, query), query), [query]);
+  const rows = useMemo(() => sortBoms(filterBoms(records, query), query), [query, records]);
   const visibleKey = rows.map((row) => row.id).join("|");
   const [selectionScope, setSelectionScope] = useState(visibleKey);
   if (selectionScope !== visibleKey) {
@@ -178,7 +180,7 @@ export function BomListPage() {
             update({ q: value });
           }}
         />
-        <Button variant="primary" icon={<Plus size={16} />}>
+        <Button variant="primary" icon={<Plus size={16} />} onClick={() => navigate("/bom/new")}>
           Add BOM
         </Button>
       </TopbarSlot>

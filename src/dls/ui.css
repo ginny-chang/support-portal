@@ -1084,3 +1084,53 @@ table.data .align-right {
   height: 900px;
   background: var(--color-canvas);
 }
+
+.create {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.create .create-grid,
+.create .line-head,
+.create .line-editor {
+  width: 100%;
+}
+
+.create-head {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.line-head,
+.line-editor {
+  display: grid;
+  grid-template-columns: 72px 160px minmax(0, 1fr) 88px 88px 180px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.line-head {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-semibold);
+}
+
+.line-editor {
+  margin-bottom: 8px;
+}
+
+.control[readonly] {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+}

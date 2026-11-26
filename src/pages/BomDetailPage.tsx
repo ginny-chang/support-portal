@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getBom } from "../data/bom";
 import type { BomLine, Supersession } from "../data/bom";
+import { useBomCatalog } from "../data/bomCatalog";
 import { formatDate, formatDateTime } from "../data/format";
 import { serviceabilityLabel, serviceabilityTone, statusLabel, statusTone } from "../data/labels";
 import type { Column } from "../components/DataTable";
@@ -10,7 +10,8 @@ import { StatusTag } from "../components/StatusTag";
 
 export function BomDetailPage() {
   const { bomId = "" } = useParams();
-  const record = getBom(bomId);
+  const { records } = useBomCatalog();
+  const record = records.find((item) => item.id === bomId);
   const history = useMemo(() => (record ? [...record.audit].reverse() : []), [record]);
 
   const lineColumns = useMemo<Column<BomLine>[]>(

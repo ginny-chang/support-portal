@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
-import { boms } from "../data/bom";
+import { useBomCatalog } from "../data/bomCatalog";
 import { filterBoms, parseQuery } from "../data/query";
 import { Sidebar } from "./Sidebar";
 
@@ -25,16 +25,22 @@ function listFrom(state: unknown): string {
 export function AppShell() {
   const location = useLocation();
   const [params] = useSearchParams();
+  const { records } = useBomCatalog();
   const onList = location.pathname === "/bom";
-  const detail = location.pathname.startsWith("/bom/");
+  const creating = location.pathname === "/bom/new";
+  const detail = location.pathname.startsWith("/bom/") && !creating;
   const backTo = `/bom${listFrom(location.state)}`;
   const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
-  const count = filterBoms(boms, parseQuery(countParams)).length;
+  const count = filterBoms(records, parseQuery(countParams)).length;
   const [topbarSlot, setTopbarSlot] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = detail ? "Service BOM detail · Giant Support Portal" : "Service BOM · Giant Support Portal";
-  }, [detail]);
+    document.title = creating
+      ? "Add BOM · Giant Support Portal"
+      : detail
+        ? "Service BOM detail · Giant Support Portal"
+        : "Service BOM · Giant Support Portal";
+  }, [creating, detail]);
 
   return (
     <div className="app-frame">
@@ -44,17 +50,24 @@ export function AppShell() {
         <div className="main">
           <header className="topbar">
             <div className="topbar-title">
+              {creating ? (
+                <Link className="crumb" to="/bom" aria-label="Service BOM">
+                  <ArrowLeft size={18} aria-hidden="true" />
+                </Link>
+              ) : null}
               {detail ? (
                 <Link className="crumb" to={backTo}>
                   <ArrowLeft size={18} aria-hidden="true" />
                   Service BOM
                 </Link>
               ) : (
-                <h1>Service BOM</h1>
+                <h1>{creating ? "Add BOM" : "Service BOM"}</h1>
               )}
-              <span className="title-count" aria-label={`${count} Service BOM`}>
-                {count}
-              </span>
+              {creating ? null : (
+                <span className="title-count" aria-label={`${count} Service BOM`}>
+                  {count}
+                </span>
+              )}
             </div>
             <div className="topbar-actions" ref={setTopbarSlot} />
           </header>
