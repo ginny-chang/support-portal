@@ -90,11 +90,12 @@
   font-weight: var(--font-semibold);
 }
 
-.nav-item:disabled {
+.nav-item:disabled,
+.nav-item:disabled:hover {
   color: var(--color-text-muted);
   background: transparent;
   cursor: not-allowed;
-  opacity: 1;
+  opacity: 0.4;
 }
 
 .main {
