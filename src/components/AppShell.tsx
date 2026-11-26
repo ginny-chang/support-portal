@@ -54,8 +54,8 @@ export function AppShell() {
         <div className="main">
           <header className="topbar">
             <div className="topbar-title">
-              {creating || editing ? (
-                <Link className="crumb" to={editing ? `/bom/${editMatch?.[1]}` : "/bom"} aria-label="Back">
+              {editing ? (
+                <Link className="crumb" to={`/bom/${editMatch?.[1]}`} aria-label="Back">
                   <ArrowLeft size={18} aria-hidden="true" />
                 </Link>
               ) : null}

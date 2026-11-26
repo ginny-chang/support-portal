@@ -69,6 +69,32 @@ export function BomCreatePage() {
   const [sizes, setSizes] = useState(source?.applicability.sizes ?? "");
   const [market, setMarket] = useState(source?.applicability.market ?? "Taiwan");
   const [errors, setErrors] = useState<string[]>([]);
+  const pristine = useMemo(() => {
+    if (source) return false;
+    const line = lines[0];
+    const untouchedLine =
+      lines.length === 1 &&
+      line.level === 0 &&
+      !line.partId.trim() &&
+      !line.description.trim() &&
+      line.quantity === 1 &&
+      line.unit === "ea" &&
+      line.serviceability === "replaceable" &&
+      !(line.parentPartId ?? "").trim() &&
+      !line.obsolete;
+    return (
+      !product.trim() &&
+      !assembly.trim() &&
+      !reason.trim() &&
+      !model.trim() &&
+      !category.trim() &&
+      !modelYears.trim() &&
+      !sizes.trim() &&
+      (market.trim() === "Taiwan" || !market.trim()) &&
+      supersessions.length === 0 &&
+      untouchedLine
+    );
+  }, [assembly, category, lines, market, model, modelYears, product, reason, sizes, source, supersessions.length]);
 
   function updateLine(index: number, patch: Partial<BomLine>) {
     setLines((current) => current.map((line, lineIndex) => (lineIndex === index ? { ...line, ...patch } : line)));
@@ -117,9 +143,11 @@ export function BomCreatePage() {
   return (
     <form className="page create" id="bom-draft" onSubmit={submit}>
       <TopbarSlot>
-        <Link className="btn btn-secondary" to={source ? `/bom/${source.id}` : "/bom"}>
-          Cancel
-        </Link>
+        {source || pristine ? (
+          <Link className="btn btn-secondary" to={source ? `/bom/${source.id}` : "/bom"}>
+            Cancel
+          </Link>
+        ) : null}
         <Button type="submit" form="bom-draft">
           {locked ? "Save new revision" : source ? "Save" : "Save draft"}
         </Button>
