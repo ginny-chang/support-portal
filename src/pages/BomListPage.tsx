@@ -78,40 +78,24 @@ export function BomListPage() {
           <ProductFilter selected={query.column} onChange={(column) => update({ column })} />
         ),
         render: (row) => {
-          const showProduct = query.column !== "assembly";
-          const showAssembly = query.column !== "product";
-          const product = (
-            <span className="name-with-icon">
-              <Bike size={14} aria-hidden="true" />
-              {row.product || "—"}
-            </span>
-          );
-          const assembly = (
-            <span className="name-with-icon">
-              <Cog size={14} aria-hidden="true" />
-              {row.assembly || "—"}
-            </span>
-          );
+          const kind =
+            query.column === "assembly" || (query.column !== "product" && !row.product && row.assembly)
+              ? "assembly"
+              : "product";
+          const Icon = kind === "product" ? Bike : Cog;
+          const label = kind === "product" ? row.product : row.assembly;
           return (
             <div className="product-cell">
-              {showProduct ? (
-                <Link
-                  to={`/bom/${row.id}`}
-                  state={{ from: location.search }}
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  {product}
-                </Link>
-              ) : (
-                <Link
-                  to={`/bom/${row.id}`}
-                  state={{ from: location.search }}
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  {assembly}
-                </Link>
-              )}
-              {showProduct && showAssembly ? assembly : null}
+              <Link
+                to={`/bom/${row.id}`}
+                state={{ from: location.search }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <span className="name-with-icon">
+                  <Icon size={14} aria-hidden="true" />
+                  {label || "—"}
+                </span>
+              </Link>
             </div>
           );
         },
