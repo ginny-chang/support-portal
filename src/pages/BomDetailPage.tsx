@@ -162,13 +162,20 @@ export function BomDetailPage() {
             <h1>{record.product || record.assembly}</h1>
             <StatusTag tone={statusTone(record.status)}>{statusLabel(record.status)}</StatusTag>
           </div>
-          {record.product && record.assembly ? <p className="detail-assembly">{record.assembly}</p> : null}
-          <div className="detail-idline">
-            {record.product && record.assembly ? null : <span>{record.product ? "Product" : "Assembly"}</span>}
-            <span>{record.id}</span>
-            <span>Revision {record.revision}</span>
-          </div>
+          {record.product && record.assembly ? (
+            <p className="detail-assembly">{record.assembly}</p>
+          ) : (
+            <p className="detail-assembly">{record.product ? "Product" : "Assembly"}</p>
+          )}
           <dl className="meta-grid">
+            <div>
+              <dt>BOM ID</dt>
+              <dd>{record.id}</dd>
+            </div>
+            <div>
+              <dt>Revision</dt>
+              <dd>{record.revision}</dd>
+            </div>
             <div>
               <dt>Owner</dt>
               <dd>{record.owner}</dd>
