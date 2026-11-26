@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
+import { Bike, ChevronDown, ChevronUp, ChevronsUpDown, Cog } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import type { BomStatus } from "../data/bom";
@@ -145,6 +145,7 @@ export function ProductFilter({
                 close();
               }}
             >
+              {choice.value === "product" ? <Bike size={14} aria-hidden="true" /> : <Cog size={14} aria-hidden="true" />}
               {choice.label}
             </button>
           ))}

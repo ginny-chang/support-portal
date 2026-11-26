@@ -693,11 +693,23 @@ table.data .align-right {
   color: var(--color-text);
 }
 
+.name-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.name-with-icon svg {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
 .product-cell a:hover {
   color: var(--color-primary);
 }
 
-.product-cell span,
+.product-cell > span,
 .id-sub {
   font-size: var(--font-size-12);
   color: var(--color-text-muted);

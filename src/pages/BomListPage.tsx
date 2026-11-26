@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Bike, Cog, Plus } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { revisions } from "../data/bom";
@@ -78,18 +78,40 @@ export function BomListPage() {
           <ProductFilter selected={query.column} onChange={(column) => update({ column })} />
         ),
         render: (row) => {
-          const primary = query.column === "assembly" ? row.assembly : row.product;
-          const secondary = query.column === "" ? row.assembly : null;
+          const showProduct = query.column !== "assembly";
+          const showAssembly = query.column !== "product";
+          const product = (
+            <span className="name-with-icon">
+              <Bike size={14} aria-hidden="true" />
+              {row.product || "—"}
+            </span>
+          );
+          const assembly = (
+            <span className="name-with-icon">
+              <Cog size={14} aria-hidden="true" />
+              {row.assembly || "—"}
+            </span>
+          );
           return (
             <div className="product-cell">
-              <Link
-                to={`/bom/${row.id}`}
-                state={{ from: location.search }}
-                onClick={(event) => event.stopPropagation()}
-              >
-                {primary || "—"}
-              </Link>
-              {secondary ? <span>{secondary}</span> : null}
+              {showProduct ? (
+                <Link
+                  to={`/bom/${row.id}`}
+                  state={{ from: location.search }}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {product}
+                </Link>
+              ) : (
+                <Link
+                  to={`/bom/${row.id}`}
+                  state={{ from: location.search }}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {assembly}
+                </Link>
+              )}
+              {showProduct && showAssembly ? assembly : null}
             </div>
           );
         },
