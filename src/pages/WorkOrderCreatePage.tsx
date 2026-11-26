@@ -192,7 +192,7 @@ export function WorkOrderCreatePage() {
           setLines((current) => [...current, lineFromBom(source)]);
         }}
       >
-        Add line
+        Create line
       </Button>
     </form>
   );

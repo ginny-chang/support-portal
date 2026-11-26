@@ -334,7 +334,7 @@ export function BomCreatePage() {
         icon={<Plus size={16} />}
         onClick={() => setLines((current) => [...current, emptyLine(current.length === 0 ? 0 : 1)])}
       >
-        Add line
+        Create line
       </Button>
 
       <h2 className="section-title">Substitutes / supersession</h2>
@@ -418,7 +418,7 @@ export function BomCreatePage() {
         disabled={partOptions.length === 0}
         onClick={() => setSupersessions((current) => [...current, emptySupersession(partOptions[0]?.value ?? "")])}
       >
-        Add substitute
+        Create substitute
       </Button>
           </>
         );

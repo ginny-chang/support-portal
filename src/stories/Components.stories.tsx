@@ -21,7 +21,7 @@ export default meta;
 export const Buttons: StoryObj = {
   render: () => (
     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      <Button icon={<Plus size={16} />}>Add BOM</Button>
+      <Button icon={<Plus size={16} />}>Create BOM</Button>
       <Button variant="secondary">Filters</Button>
       <Button variant="ghost">Clear</Button>
       <Button disabled>Disabled</Button>

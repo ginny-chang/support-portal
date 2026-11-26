@@ -43,13 +43,13 @@ export function AppShell() {
 
   useEffect(() => {
     const pageTitle = creatingWork
-      ? "Add Service Work Order"
+      ? "Create Service Work Order"
       : onWorkList
         ? "Service Work Order"
         : workDetail
           ? "Service Work Order detail"
           : creating
-            ? "Add BOM"
+            ? "Create BOM"
             : editing
               ? "Update BOM"
               : detail
@@ -79,9 +79,9 @@ export function AppShell() {
               ) : (
                 <h1>
                   {creatingWork
-                    ? "Add Service Work Order"
+                    ? "Create Service Work Order"
                     : creating
-                      ? "Add BOM"
+                      ? "Create BOM"
                       : editing
                         ? "Update BOM"
                         : onWorkList

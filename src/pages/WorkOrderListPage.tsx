@@ -90,7 +90,7 @@ export function WorkOrderListPage() {
       <TopbarSlot>
         <SearchField label="product, assembly, dealer, or part number." value={query} onValueChange={setQuery} />
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => navigate("/work-orders/new")}>
-          Add Service Work Order
+          Create Service Work Order
         </Button>
       </TopbarSlot>
       <DataTable

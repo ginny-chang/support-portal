@@ -188,7 +188,7 @@ export function BomListPage() {
           }}
         />
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => navigate("/bom/new")}>
-          Add BOM
+          Create BOM
         </Button>
       </TopbarSlot>
       <DataTable
