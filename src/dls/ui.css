@@ -1136,8 +1136,25 @@ table.data .align-right {
 .create .line-head,
 .create .line-editor,
 .create .sub-head,
-.create .sub-editor {
+.create .sub-editor,
+.create .work-line-head,
+.create .work-line-editor {
   width: 100%;
+}
+
+.work-line-head,
+.work-line-editor {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) 88px 88px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.work-line-head {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-semibold);
 }
 
 .create-head {

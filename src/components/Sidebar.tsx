@@ -25,7 +25,7 @@ const groups: { label: string; items: NavItem[] }[] = [
     label: "Service operations",
     items: [
       { id: "bom", label: "Service BOM", icon: Network, to: "/bom" },
-      { id: "work-orders", label: "Service Work Order", icon: ClipboardList },
+      { id: "work-orders", label: "Service Work Order", icon: ClipboardList, to: "/work-orders" },
       { id: "claims", label: "Quality Claim", icon: ShieldAlert },
       { id: "replacement", label: "Spare Part Replacement", icon: ArrowLeftRight },
     ],

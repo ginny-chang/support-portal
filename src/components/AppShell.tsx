@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { useBomCatalog } from "../data/bomCatalog";
 import { filterBoms, parseQuery } from "../data/query";
+import { useWorkOrders } from "../data/workOrderCatalog";
 import { Sidebar } from "./Sidebar";
 
 const TopbarSlotContext = createContext<HTMLDivElement | null>(null);
@@ -26,25 +27,36 @@ export function AppShell() {
   const location = useLocation();
   const [params] = useSearchParams();
   const { records } = useBomCatalog();
+  const { records: workOrders } = useWorkOrders();
   const onList = location.pathname === "/bom";
+  const onWorkList = location.pathname === "/work-orders";
   const editMatch = location.pathname.match(/^\/bom\/([^/]+)\/edit$/);
   const creating = location.pathname === "/bom/new";
+  const creatingWork = location.pathname === "/work-orders/new";
   const editing = Boolean(editMatch);
   const detail = location.pathname.startsWith("/bom/") && !creating && !editing;
+  const workDetail = /^\/work-orders\/(?!new$)[^/]+$/.test(location.pathname);
   const backTo = `/bom${listFrom(location.state)}`;
   const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
-  const count = filterBoms(records, parseQuery(countParams)).length;
+  const count = onWorkList ? workOrders.length : filterBoms(records, parseQuery(countParams)).length;
   const [topbarSlot, setTopbarSlot] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    document.title = creating
-      ? "Add BOM · Giant Support Portal"
-      : editing
-        ? "Update BOM · Giant Support Portal"
-        : detail
-          ? "Service BOM detail · Giant Support Portal"
-          : "Service BOM · Giant Support Portal";
-  }, [creating, detail, editing]);
+    const pageTitle = creatingWork
+      ? "Add Service Work Order"
+      : onWorkList
+        ? "Service Work Order"
+        : workDetail
+          ? "Service Work Order detail"
+          : creating
+            ? "Add BOM"
+            : editing
+              ? "Update BOM"
+              : detail
+                ? "Service BOM detail"
+                : "Service BOM";
+    document.title = `${pageTitle} · Giant Support Portal`;
+  }, [creating, creatingWork, detail, editing, onWorkList, workDetail]);
 
   return (
     <div className="app-frame">
@@ -59,15 +71,25 @@ export function AppShell() {
                   <ArrowLeft size={18} aria-hidden="true" />
                 </Link>
               ) : null}
-              {detail ? (
-                <Link className="crumb crumb-parent" to={backTo}>
+              {detail || workDetail ? (
+                <Link className="crumb crumb-parent" to={workDetail ? "/work-orders" : backTo}>
                   <ArrowLeft size={14} aria-hidden="true" />
-                  Service BOM
+                  {workDetail ? "Service Work Order" : "Service BOM"}
                 </Link>
               ) : (
-                <h1>{creating ? "Add BOM" : editing ? "Update BOM" : "Service BOM"}</h1>
+                <h1>
+                  {creatingWork
+                    ? "Add Service Work Order"
+                    : creating
+                      ? "Add BOM"
+                      : editing
+                        ? "Update BOM"
+                        : onWorkList
+                          ? "Service Work Order"
+                          : "Service BOM"}
+                </h1>
               )}
-              {onList ? (
+              {onList || onWorkList ? (
                 <span className="title-count" aria-label={`${count} Service BOM`}>
                   {count}
                 </span>
