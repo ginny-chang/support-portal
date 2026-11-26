@@ -133,10 +133,6 @@
   display: inline-flex;
 }
 
-.sort-btn.is-active {
-  color: var(--color-primary);
-}
-
 .header-menu {
   position: absolute;
   top: calc(100% + 6px);
