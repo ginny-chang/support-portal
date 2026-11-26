@@ -14,6 +14,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/bom" replace />} />
             <Route path="/bom" element={<BomListPage />} />
             <Route path="/bom/new" element={<BomCreatePage />} />
+            <Route path="/bom/:bomId/edit" element={<BomCreatePage />} />
             <Route path="/bom/:bomId" element={<BomDetailPage />} />
             <Route path="*" element={<Navigate to="/bom" replace />} />
           </Route>

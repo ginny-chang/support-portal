@@ -9,6 +9,7 @@ export interface BomLine {
   unit: string;
   serviceability: Serviceability;
   obsolete: boolean;
+  parentPartId?: string;
 }
 
 export interface Applicability {

@@ -98,7 +98,7 @@ export function BomListPage() {
         id: "revision",
         header: (
           <RevisionFilter
-            revisions={revisions}
+            revisions={[...new Set([...revisions, ...records.map((record) => record.revision)])].sort()}
             selected={query.revisions}
             onToggle={(revision) => {
               const current = queryRef.current.revisions;

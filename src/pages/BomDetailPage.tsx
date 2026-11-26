@@ -1,5 +1,9 @@
-import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { TopbarSlot } from "../components/AppShell";
+import { Button } from "../components/Button";
+import { SelectMenu } from "../components/SelectMenu";
 import type { BomLine, Supersession } from "../data/bom";
 import { useBomCatalog } from "../data/bomCatalog";
 import { formatDate, formatDateTime } from "../data/format";
@@ -9,9 +13,16 @@ import { DataTable } from "../components/DataTable";
 import { StatusTag } from "../components/StatusTag";
 
 export function BomDetailPage() {
+  const navigate = useNavigate();
   const { bomId = "" } = useParams();
-  const { records } = useBomCatalog();
+  const { records, submitForReview, releaseBom } = useBomCatalog();
   const record = records.find((item) => item.id === bomId);
+  const [panel, setPanel] = useState<"review" | "release" | null>(null);
+  const [reason, setReason] = useState("");
+  const [change, setChange] = useState("");
+  const [effectiveDate, setEffectiveDate] = useState("");
+  const approvers = [...new Set(records.map((item) => item.owner))];
+  const [approver, setApprover] = useState(approvers[0] ?? "");
   const history = useMemo(() => (record ? [...record.audit].reverse() : []), [record]);
 
   const lineColumns = useMemo<Column<BomLine>[]>(
@@ -40,6 +51,12 @@ export function BomDetailPage() {
         render: (line) => line.quantity,
       },
       { id: "unit", header: "Unit", width: "72px", render: (line) => line.unit },
+      {
+        id: "parent",
+        header: "Parent",
+        width: "140px",
+        render: (line) => line.parentPartId || "—",
+      },
       {
         id: "serviceability",
         header: "Serviceability",
@@ -80,9 +97,65 @@ export function BomDetailPage() {
       </div>
     );
   }
+  const bom = record;
+
+  function submitReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!reason.trim()) return;
+    submitForReview(bom.id, reason);
+    setPanel(null);
+    setReason("");
+  }
+
+  function submitRelease(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!approver.trim() || !effectiveDate || !change.trim()) return;
+    releaseBom(bom.id, { approver, effectiveDate, change });
+    setPanel(null);
+  }
 
   return (
     <div className="page">
+      <TopbarSlot>
+        <Button variant="secondary" onClick={() => navigate(`/bom/${bom.id}/edit`)}>
+          Update
+        </Button>
+        {bom.status === "draft" ? (
+          <Button onClick={() => setPanel("review")}>Submit for review</Button>
+        ) : null}
+        {bom.status === "in_review" ? <Button onClick={() => setPanel("release")}>Release</Button> : null}
+      </TopbarSlot>
+      {panel === "review" ? (
+        <form className="action-panel" onSubmit={submitReview}>
+          <label className="field">
+            <span className="field-label">Reason</span>
+            <input className="control" value={reason} onChange={(event) => setReason(event.target.value)} />
+          </label>
+          <Button type="submit">Submit for review</Button>
+        </form>
+      ) : null}
+      {panel === "release" ? (
+        <form className="action-panel" onSubmit={submitRelease}>
+          <label className="field">
+            <span className="field-label">Approver</span>
+            <SelectMenu
+              label="Approver"
+              value={approver}
+              options={approvers.map((name) => ({ value: name, label: name }))}
+              onChange={setApprover}
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Effective date</span>
+            <input className="control" type="date" value={effectiveDate} onChange={(event) => setEffectiveDate(event.target.value)} />
+          </label>
+          <label className="field field-wide">
+            <span className="field-label">Change</span>
+            <input className="control" value={change} onChange={(event) => setChange(event.target.value)} />
+          </label>
+          <Button type="submit">Release</Button>
+        </form>
+      ) : null}
       <div className="detail">
         <div>
           <h1>{record.product}</h1>

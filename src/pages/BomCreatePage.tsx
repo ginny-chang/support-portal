@@ -1,11 +1,13 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
+import { SelectMenu } from "../components/SelectMenu";
 import { revisions } from "../data/bom";
 import type { BomLine, Serviceability } from "../data/bom";
 import { useBomCatalog } from "../data/bomCatalog";
+import { nextRevision, validateBomDraft } from "../data/bomRules";
 import { serviceabilityLabel } from "../data/labels";
 
 const serviceabilityOptions: Serviceability[] = ["serviceable", "replaceable", "consumable", "assembly"];
@@ -20,21 +22,29 @@ function emptyLine(level: number): BomLine {
     unit: "ea",
     serviceability: "replaceable",
     obsolete: false,
+    parentPartId: "",
   };
 }
 
 export function BomCreatePage() {
   const navigate = useNavigate();
-  const { addBom } = useBomCatalog();
-  const [product, setProduct] = useState("");
-  const [assembly, setAssembly] = useState("");
-  const [revision, setRevision] = useState<string>(revisions[0]);
-  const [lines, setLines] = useState<BomLine[]>([emptyLine(0)]);
-  const [model, setModel] = useState("");
-  const [category, setCategory] = useState("");
-  const [modelYears, setModelYears] = useState("");
-  const [sizes, setSizes] = useState("");
-  const [market, setMarket] = useState("Taiwan");
+  const { bomId } = useParams();
+  const { records, addBom, updateBom } = useBomCatalog();
+  const source = bomId ? records.find((record) => record.id === bomId) : undefined;
+  const locked = source ? source.status === "released" || source.status === "superseded" || source.status === "obsolete" : false;
+  const [product, setProduct] = useState(source?.product ?? "");
+  const [assembly, setAssembly] = useState(source?.assembly ?? "");
+  const [revision, setRevision] = useState(source ? (locked ? nextRevision(source.revision) : source.revision) : revisions[0]);
+  const [reason, setReason] = useState("");
+  const [lines, setLines] = useState<BomLine[]>(
+    source?.lines.map((line) => ({ ...line, parentPartId: line.parentPartId ?? "" })) ?? [emptyLine(0)],
+  );
+  const [model, setModel] = useState(source?.applicability.model ?? "");
+  const [category, setCategory] = useState(source?.applicability.category ?? "");
+  const [modelYears, setModelYears] = useState(source?.applicability.modelYears ?? "");
+  const [sizes, setSizes] = useState(source?.applicability.sizes ?? "");
+  const [market, setMarket] = useState(source?.applicability.market ?? "Taiwan");
+  const [errors, setErrors] = useState<string[]>([]);
 
   function updateLine(index: number, patch: Partial<BomLine>) {
     setLines((current) => current.map((line, lineIndex) => (lineIndex === index ? { ...line, ...patch } : line)));
@@ -42,23 +52,30 @@ export function BomCreatePage() {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextLines = lines
-      .map((line) => ({ ...line, partId: line.partId.trim(), description: line.description.trim() }))
-      .filter((line) => line.partId && line.description);
-    if (!product.trim() || !assembly.trim() || nextLines.length === 0) return;
-    const id = addBom({
-      product: product.trim(),
-      assembly: assembly.trim(),
+    const nextLines = lines.map((line) => ({
+      ...line,
+      partId: line.partId.trim(),
+      description: line.description.trim(),
+      parentPartId: line.parentPartId?.trim() ?? "",
+    }));
+    const input = {
+      product,
+      assembly,
       revision,
+      reason,
       lines: nextLines,
       applicability: {
         model: model.trim() || product.trim(),
-        category: category.trim(),
-        modelYears: modelYears.trim(),
-        sizes: sizes.trim(),
-        market: market.trim() || "Taiwan",
+        category,
+        modelYears,
+        sizes,
+        market,
       },
-    });
+    };
+    const nextErrors = validateBomDraft(input);
+    setErrors(nextErrors);
+    if (nextErrors.length > 0) return;
+    const id = source ? updateBom(source.id, input) : addBom(input);
     navigate(`/bom/${id}`);
   }
 
@@ -66,35 +83,48 @@ export function BomCreatePage() {
     <form className="page create" onSubmit={submit}>
       <div className="create-head">
         <div className="summary-tools">
-          <Link className="btn btn-secondary" to="/bom">
+          <Link className="btn btn-secondary" to={source ? `/bom/${source.id}` : "/bom"}>
             Cancel
           </Link>
-          <Button type="submit">Save draft</Button>
+          <Button type="submit">{locked ? "Save new revision" : source ? "Save" : "Save draft"}</Button>
         </div>
       </div>
-
+      {errors.length > 0 ? (
+        <ul className="form-errors" role="alert">
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      ) : null}
       <div className="create-grid">
         <label className="field">
           <span className="field-label">Product</span>
-          <input className="control" value={product} required onChange={(event) => setProduct(event.target.value)} />
+          <input className="control" value={product} readOnly={locked} onChange={(event) => setProduct(event.target.value)} />
         </label>
         <label className="field">
           <span className="field-label">Assembly</span>
-          <input className="control" value={assembly} required onChange={(event) => setAssembly(event.target.value)} />
+          <input className="control" value={assembly} readOnly={locked} onChange={(event) => setAssembly(event.target.value)} />
         </label>
         <label className="field">
           <span className="field-label">Revision</span>
-          <select className="control" value={revision} onChange={(event) => setRevision(event.target.value)}>
-            {revisions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+          {locked ? (
+            <input className="control" value={revision} readOnly />
+          ) : (
+            <SelectMenu
+              label="Revision"
+              value={revision}
+              options={revisions.map((item) => ({ value: item, label: item }))}
+              onChange={setRevision}
+            />
+          )}
         </label>
         <label className="field">
           <span className="field-label">Status</span>
           <input className="control" value="Draft" readOnly />
+        </label>
+        <label className="field field-wide">
+          <span className="field-label">Reason</span>
+          <input className="control" value={reason} onChange={(event) => setReason(event.target.value)} />
         </label>
       </div>
 
@@ -106,75 +136,76 @@ export function BomCreatePage() {
         <span>Quantity</span>
         <span>Unit</span>
         <span>Serviceability</span>
+        <span>Parent</span>
         <span />
       </div>
-      {lines.map((line, index) => (
-        <div className="line-editor" key={index}>
-          <input
-            className="control"
-            type="number"
-            min={0}
-            aria-label="Level"
-            value={line.level}
-            onChange={(event) => updateLine(index, { level: Number(event.target.value) })}
-          />
-          <input
-            className="control"
-            aria-label="Part ID"
-            value={line.partId}
-            required={index === 0}
-            onChange={(event) => updateLine(index, { partId: event.target.value })}
-          />
-          <input
-            className="control"
-            aria-label="Description"
-            value={line.description}
-            required={index === 0}
-            onChange={(event) => updateLine(index, { description: event.target.value })}
-          />
-          <input
-            className="control"
-            type="number"
-            min={1}
-            aria-label="Quantity"
-            value={line.quantity}
-            onChange={(event) => updateLine(index, { quantity: Number(event.target.value) })}
-          />
-          <select
-            className="control"
-            aria-label="Unit"
-            value={line.unit}
-            onChange={(event) => updateLine(index, { unit: event.target.value })}
-          >
-            {units.map((unit) => (
-              <option key={unit} value={unit}>
-                {unit}
-              </option>
-            ))}
-          </select>
-          <select
-            className="control"
-            aria-label="Serviceability"
-            value={line.serviceability}
-            onChange={(event) => updateLine(index, { serviceability: event.target.value as Serviceability })}
-          >
-            {serviceabilityOptions.map((option) => (
-              <option key={option} value={option}>
-                {serviceabilityLabel(option)}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="Remove line"
-            disabled={lines.length === 1}
-            onClick={() => setLines((current) => current.filter((_, lineIndex) => lineIndex !== index))}
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      ))}
+      {lines.map((line, index) => {
+        const parentOptions = [
+          { value: "", label: "None" },
+          ...lines
+            .filter((item, itemIndex) => itemIndex !== index && item.partId.trim())
+            .map((item) => ({ value: item.partId.trim(), label: item.partId.trim() })),
+        ];
+        return (
+          <div className="line-editor" key={index}>
+            <input
+              className="control"
+              type="number"
+              min={0}
+              aria-label="Level"
+              value={line.level}
+              onChange={(event) => updateLine(index, { level: Number(event.target.value) })}
+            />
+            <input
+              className="control"
+              aria-label="Part ID"
+              value={line.partId}
+              onChange={(event) => updateLine(index, { partId: event.target.value })}
+            />
+            <input
+              className="control"
+              aria-label="Description"
+              value={line.description}
+              onChange={(event) => updateLine(index, { description: event.target.value })}
+            />
+            <input
+              className="control"
+              type="number"
+              min={1}
+              aria-label="Quantity"
+              value={line.quantity}
+              onChange={(event) => updateLine(index, { quantity: Number(event.target.value) })}
+            />
+            <SelectMenu
+              label="Unit"
+              value={line.unit}
+              options={units.map((unit) => ({ value: unit, label: unit }))}
+              onChange={(unit) => updateLine(index, { unit })}
+            />
+            <SelectMenu
+              label="Serviceability"
+              value={line.serviceability}
+              options={serviceabilityOptions.map((option) => ({ value: option, label: serviceabilityLabel(option) }))}
+              onChange={(serviceability) => updateLine(index, { serviceability: serviceability as Serviceability })}
+            />
+            <SelectMenu
+              label="Parent"
+              value={line.parentPartId ?? ""}
+              options={parentOptions}
+              onChange={(parentPartId) => updateLine(index, { parentPartId })}
+            />
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Remove line"
+              disabled={lines.length === 1}
+              onClick={() => setLines((current) => current.filter((_, lineIndex) => lineIndex !== index))}
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        );
+      })}
       <Button
         variant="secondary"
         icon={<Plus size={16} />}

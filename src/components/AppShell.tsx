@@ -27,8 +27,10 @@ export function AppShell() {
   const [params] = useSearchParams();
   const { records } = useBomCatalog();
   const onList = location.pathname === "/bom";
+  const editMatch = location.pathname.match(/^\/bom\/([^/]+)\/edit$/);
   const creating = location.pathname === "/bom/new";
-  const detail = location.pathname.startsWith("/bom/") && !creating;
+  const editing = Boolean(editMatch);
+  const detail = location.pathname.startsWith("/bom/") && !creating && !editing;
   const backTo = `/bom${listFrom(location.state)}`;
   const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
   const count = filterBoms(records, parseQuery(countParams)).length;
@@ -37,10 +39,12 @@ export function AppShell() {
   useEffect(() => {
     document.title = creating
       ? "Add BOM · Giant Support Portal"
-      : detail
-        ? "Service BOM detail · Giant Support Portal"
-        : "Service BOM · Giant Support Portal";
-  }, [creating, detail]);
+      : editing
+        ? "Update BOM · Giant Support Portal"
+        : detail
+          ? "Service BOM detail · Giant Support Portal"
+          : "Service BOM · Giant Support Portal";
+  }, [creating, detail, editing]);
 
   return (
     <div className="app-frame">
@@ -50,8 +54,8 @@ export function AppShell() {
         <div className="main">
           <header className="topbar">
             <div className="topbar-title">
-              {creating ? (
-                <Link className="crumb" to="/bom" aria-label="Service BOM">
+              {creating || editing ? (
+                <Link className="crumb" to={editing ? `/bom/${editMatch?.[1]}` : "/bom"} aria-label="Back">
                   <ArrowLeft size={18} aria-hidden="true" />
                 </Link>
               ) : null}
@@ -61,9 +65,9 @@ export function AppShell() {
                   Service BOM
                 </Link>
               ) : (
-                <h1>{creating ? "Add BOM" : "Service BOM"}</h1>
+                <h1>{creating ? "Add BOM" : editing ? "Update BOM" : "Service BOM"}</h1>
               )}
-              {creating ? null : (
+              {creating || editing ? null : (
                 <span className="title-count" aria-label={`${count} Service BOM`}>
                   {count}
                 </span>
