@@ -11,6 +11,8 @@ npm run dev
 
 Dev server: <http://127.0.0.1:43123>
 
+Shareable preview: <https://ginny-chang.github.io/support-portal/>
+
 ## Storybook
 
 ```bash

@@ -11,7 +11,7 @@ import { WorkOrderListPage } from "./pages/WorkOrderListPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
       <BomCatalogProvider>
         <WorkOrderCatalogProvider>
           <Routes>
