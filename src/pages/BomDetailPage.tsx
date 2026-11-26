@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TopbarSlot } from "../components/AppShell";
@@ -18,12 +19,21 @@ export function BomDetailPage() {
   const { records, submitForReview, releaseBom } = useBomCatalog();
   const record = records.find((item) => item.id === bomId);
   const [panel, setPanel] = useState<"review" | "release" | null>(null);
+  const [auditOpen, setAuditOpen] = useState(false);
+  const auditRef = useRef<HTMLDialogElement>(null);
   const [reason, setReason] = useState("");
   const [change, setChange] = useState("");
   const [effectiveDate, setEffectiveDate] = useState("");
   const approvers = [...new Set(records.map((item) => item.owner))];
   const [approver, setApprover] = useState(approvers[0] ?? "");
   const history = useMemo(() => (record ? [...record.audit].reverse() : []), [record]);
+
+  useEffect(() => {
+    const dialog = auditRef.current;
+    if (!dialog) return;
+    if (auditOpen && !dialog.open) dialog.showModal();
+    if (!auditOpen && dialog.open) dialog.close();
+  }, [auditOpen]);
 
   const lineColumns = useMemo<Column<BomLine>[]>(
     () => [
@@ -117,6 +127,9 @@ export function BomDetailPage() {
   return (
     <div className="page">
       <TopbarSlot>
+        <Button variant="secondary" onClick={() => setAuditOpen(true)}>
+          Audit history
+        </Button>
         <Button variant="secondary" onClick={() => navigate(`/bom/${bom.id}/edit`)}>
           Update
         </Button>
@@ -245,22 +258,35 @@ export function BomDetailPage() {
             empty="None"
           />
         </div>
-        <aside className="audit-panel" aria-label="Audit history">
-          <h2 className="section-title">Audit history</h2>
-          <ol className="audit-list">
-            {history.map((item, index) => (
-              <li key={`${item.at}-${item.action}`} className={index === 0 ? "audit-item is-latest" : "audit-item"}>
-                <span className="audit-dot" aria-hidden="true" />
-                <time className="audit-time" dateTime={item.at}>
-                  {formatDateTime(item.at)}
-                </time>
-                <span className="audit-actor">{item.actor}</span>
-                <span className="audit-action">{item.action}</span>
-              </li>
-            ))}
-          </ol>
-        </aside>
       </div>
+      <dialog
+        ref={auditRef}
+        className="audit-dialog"
+        aria-labelledby="audit-history-title"
+        onClose={() => setAuditOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) event.currentTarget.close();
+        }}
+      >
+        <div className="audit-dialog-head">
+          <h2 id="audit-history-title">Audit history</h2>
+          <button type="button" className="icon-btn" aria-label="Close" onClick={() => auditRef.current?.close()}>
+            <X size={16} />
+          </button>
+        </div>
+        <ol className="audit-list">
+          {history.map((item, index) => (
+            <li key={`${item.at}-${item.action}`} className={index === 0 ? "audit-item is-latest" : "audit-item"}>
+              <span className="audit-dot" aria-hidden="true" />
+              <time className="audit-time" dateTime={item.at}>
+                {formatDateTime(item.at)}
+              </time>
+              <span className="audit-actor">{item.actor}</span>
+              <span className="audit-action">{item.action}</span>
+            </li>
+          ))}
+        </ol>
+      </dialog>
     </div>
   );
 }
