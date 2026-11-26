@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { boms } from "./bom";
-import type { Applicability, BomLine, BomRecord, BomStatus } from "./bom";
+import type { Applicability, BomLine, BomRecord, BomStatus, Supersession } from "./bom";
 import { nextRevision } from "./bomRules";
 
 const CURRENT_USER = "陳宜安";
@@ -14,6 +14,7 @@ export interface BomWriteInput {
   reason: string;
   lines: BomLine[];
   applicability: Applicability;
+  supersessions: Supersession[];
 }
 
 interface BomCatalogValue {
@@ -51,7 +52,7 @@ function draftFrom(id: string, input: BomWriteInput, updatedAt: string, action: 
     updatedAt,
     lines: input.lines,
     applicability: input.applicability,
-    supersessions: [],
+    supersessions: input.supersessions,
     audit: [{ at: updatedAt, actor: CURRENT_USER, action }],
   };
 }
@@ -98,6 +99,7 @@ export function BomCatalogProvider({ children }: { children: ReactNode }) {
                   revision: input.revision,
                   lines: input.lines,
                   applicability: input.applicability,
+                  supersessions: input.supersessions,
                   updatedAt,
                   audit: [...record.audit, { at: updatedAt, actor: CURRENT_USER, action: `Update — ${input.reason.trim()}` }],
                 }

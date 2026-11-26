@@ -1094,7 +1094,9 @@ table.data .align-right {
 
 .create .create-grid,
 .create .line-head,
-.create .line-editor {
+.create .line-editor,
+.create .sub-head,
+.create .sub-editor {
   width: 100%;
 }
 
@@ -1151,7 +1153,17 @@ table.data .align-right {
   align-items: center;
 }
 
-.line-head {
+.sub-head,
+.sub-editor {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr) 240px 160px 36px;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.line-head,
+.sub-head {
   margin-top: 8px;
   color: var(--color-text-muted);
   font-size: var(--font-size-12);

@@ -4,13 +4,18 @@ import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { SelectMenu } from "../components/SelectMenu";
-import type { BomLine, Serviceability } from "../data/bom";
+import type { BomLine, Serviceability, Supersession } from "../data/bom";
 import { useBomCatalog } from "../data/bomCatalog";
 import { nextRevision, revisionForTarget, validateBomDraft } from "../data/bomRules";
 import { serviceabilityLabel } from "../data/labels";
 
 const serviceabilityOptions: Serviceability[] = ["serviceable", "replaceable", "consumable", "assembly"];
 const units = ["ea", "set", "pc", "pr"];
+const relations = ["Discontinued supersession", "Specification supersession"];
+
+function emptySupersession(): Supersession {
+  return { fromPartId: "", toPartId: "", relation: relations[0], effectiveDate: "" };
+}
 
 function emptyLine(level: number): BomLine {
   return {
@@ -56,6 +61,7 @@ export function BomCreatePage() {
   const [lines, setLines] = useState<BomLine[]>(
     source?.lines.map((line) => ({ ...line, parentPartId: line.parentPartId ?? "" })) ?? [emptyLine(0)],
   );
+  const [supersessions, setSupersessions] = useState<Supersession[]>(source?.supersessions ?? []);
   const [model, setModel] = useState(source?.applicability.model ?? "");
   const [category, setCategory] = useState(source?.applicability.category ?? "");
   const [modelYears, setModelYears] = useState(source?.applicability.modelYears ?? "");
@@ -75,6 +81,14 @@ export function BomCreatePage() {
       description: line.description.trim(),
       parentPartId: line.parentPartId?.trim() ?? "",
     }));
+    const nextSupersessions = supersessions
+      .map((item) => ({
+        fromPartId: item.fromPartId.trim(),
+        toPartId: item.toPartId.trim(),
+        relation: item.relation.trim(),
+        effectiveDate: item.effectiveDate,
+      }))
+      .filter((item) => item.fromPartId || item.toPartId || item.effectiveDate);
     const nextProduct = locked ? (source?.product ?? "") : target === "product" ? product.trim() : "";
     const nextAssembly = locked ? (source?.assembly ?? "") : target === "assembly" ? assembly.trim() : "";
     const input = {
@@ -83,6 +97,7 @@ export function BomCreatePage() {
       revision,
       reason,
       lines: nextLines,
+      supersessions: nextSupersessions,
       applicability: {
         model: model.trim() || nextProduct || nextAssembly,
         category,
@@ -264,6 +279,71 @@ export function BomCreatePage() {
         onClick={() => setLines((current) => [...current, emptyLine(current.length === 0 ? 0 : 1)])}
       >
         Add line
+      </Button>
+
+      <h2 className="section-title">Substitutes / supersession</h2>
+      {supersessions.length > 0 ? (
+        <div className="sub-head">
+          <span>Original part ID</span>
+          <span>Superseding part ID</span>
+          <span>Relation</span>
+          <span>Effective Date</span>
+          <span />
+        </div>
+      ) : null}
+      {supersessions.map((item, index) => (
+        <div className="sub-editor" key={index}>
+          <input
+            className="control"
+            aria-label="Original part ID"
+            value={item.fromPartId}
+            onChange={(event) =>
+              setSupersessions((current) =>
+                current.map((row, rowIndex) => (rowIndex === index ? { ...row, fromPartId: event.target.value } : row)),
+              )
+            }
+          />
+          <input
+            className="control"
+            aria-label="Superseding part ID"
+            value={item.toPartId}
+            onChange={(event) =>
+              setSupersessions((current) =>
+                current.map((row, rowIndex) => (rowIndex === index ? { ...row, toPartId: event.target.value } : row)),
+              )
+            }
+          />
+          <SelectMenu
+            label="Relation"
+            value={item.relation}
+            options={relations.map((relation) => ({ value: relation, label: relation }))}
+            onChange={(relation) =>
+              setSupersessions((current) => current.map((row, rowIndex) => (rowIndex === index ? { ...row, relation } : row)))
+            }
+          />
+          <input
+            className="control"
+            type="date"
+            aria-label="Effective Date"
+            value={item.effectiveDate}
+            onChange={(event) =>
+              setSupersessions((current) =>
+                current.map((row, rowIndex) => (rowIndex === index ? { ...row, effectiveDate: event.target.value } : row)),
+              )
+            }
+          />
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Remove substitute"
+            onClick={() => setSupersessions((current) => current.filter((_, rowIndex) => rowIndex !== index))}
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ))}
+      <Button variant="secondary" icon={<Plus size={16} />} onClick={() => setSupersessions((current) => [...current, emptySupersession()])}>
+        Add substitute
       </Button>
 
       <h2 className="section-title">Applicability</h2>

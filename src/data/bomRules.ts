@@ -1,4 +1,4 @@
-import type { Applicability, BomLine } from "./bom";
+import type { Applicability, BomLine, Supersession } from "./bom";
 
 export interface BomDraftInput {
   product: string;
@@ -7,6 +7,7 @@ export interface BomDraftInput {
   reason: string;
   lines: BomLine[];
   applicability: Applicability;
+  supersessions: Supersession[];
 }
 
 export function validateBomDraft(input: BomDraftInput, options?: { exclusiveTarget?: boolean }): string[] {
@@ -84,6 +85,19 @@ export function validateBomDraft(input: BomDraftInput, options?: { exclusiveTarg
       walked.add(current);
       current = byId.get(current)?.parentPartId?.trim() ?? "";
     }
+  }
+
+  for (const item of input.supersessions) {
+    const fromPartId = item.fromPartId.trim();
+    const toPartId = item.toPartId.trim();
+    if (!fromPartId && !toPartId && !item.effectiveDate.trim()) continue;
+    if (!fromPartId) errors.push("Original part ID is required.");
+    if (!toPartId) errors.push("Superseding part ID is required.");
+    if (fromPartId && /\s/.test(fromPartId)) errors.push(`Original part ID ${fromPartId} cannot contain spaces.`);
+    if (toPartId && /\s/.test(toPartId)) errors.push(`Superseding part ID ${toPartId} cannot contain spaces.`);
+    if (fromPartId && fromPartId === toPartId) errors.push(`${fromPartId} cannot supersede itself.`);
+    if (!item.relation.trim()) errors.push("Relation is required.");
+    if (!item.effectiveDate.trim()) errors.push("Effective Date is required.");
   }
 
   return errors;
