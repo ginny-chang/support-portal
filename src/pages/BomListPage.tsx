@@ -60,7 +60,7 @@ export function BomListPage() {
             onChange={(sort, dir) => update({ sort, dir })}
           />
         ),
-        width: "156px",
+        width: "148px",
         render: (row) => (
           <Link
             className="id-link"
@@ -77,6 +77,7 @@ export function BomListPage() {
         header: (
           <ProductFilter selected={query.column} onChange={(column) => update({ column })} />
         ),
+        width: "320px",
         render: (row) => {
           const kind =
             query.column === "assembly" || (query.column !== "product" && !row.product && row.assembly)
@@ -117,7 +118,7 @@ export function BomListPage() {
             onClear={() => update({ revisions: [] })}
           />
         ),
-        width: "120px",
+        width: "96px",
         render: (row) => row.revision,
       },
       {
@@ -134,7 +135,7 @@ export function BomListPage() {
             onClear={() => update({ statuses: [] })}
           />
         ),
-        width: "140px",
+        width: "124px",
         render: (row) => <StatusTag tone={statusTone(row.status)}>{statusLabel(row.status)}</StatusTag>,
       },
       {
@@ -154,7 +155,7 @@ export function BomListPage() {
             onChange={(sort, dir) => update({ sort, dir })}
           />
         ),
-        width: "156px",
+        width: "140px",
         render: (row) => formatDate(row.effectiveDate),
       },
       {
@@ -168,7 +169,7 @@ export function BomListPage() {
             onChange={(sort, dir) => update({ sort, dir })}
           />
         ),
-        width: "168px",
+        width: "156px",
         render: (row) => formatDateTime(row.updatedAt),
       },
     ],

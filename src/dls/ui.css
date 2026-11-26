@@ -698,6 +698,7 @@ table.data .align-right {
   align-items: center;
   gap: 6px;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .name-with-icon svg {
