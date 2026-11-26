@@ -181,6 +181,33 @@ export function BomCreatePage() {
             </div>
           </div>
         )}
+      </div>
+
+      <h2 className="section-title">Applicability</h2>
+      <div className="create-grid">
+        <label className="field">
+          <span className="field-label">Model</span>
+          <input className="control" value={model} onChange={(event) => setModel(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="field-label">Category</span>
+          <input className="control" value={category} onChange={(event) => setCategory(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="field-label">Model year</span>
+          <input className="control" value={modelYears} onChange={(event) => setModelYears(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="field-label">Size</span>
+          <input className="control" value={sizes} onChange={(event) => setSizes(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="field-label">Market</span>
+          <input className="control" value={market} onChange={(event) => setMarket(event.target.value)} />
+        </label>
+      </div>
+
+      <div className="create-grid">
         <label className="field">
           <span className="field-label">Revision</span>
           <input className="control" value={revision} readOnly aria-label="Revision" />
@@ -345,30 +372,6 @@ export function BomCreatePage() {
       <Button variant="secondary" icon={<Plus size={16} />} onClick={() => setSupersessions((current) => [...current, emptySupersession()])}>
         Add substitute
       </Button>
-
-      <h2 className="section-title">Applicability</h2>
-      <div className="create-grid">
-        <label className="field">
-          <span className="field-label">Model</span>
-          <input className="control" value={model} onChange={(event) => setModel(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field-label">Category</span>
-          <input className="control" value={category} onChange={(event) => setCategory(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field-label">Model year</span>
-          <input className="control" value={modelYears} onChange={(event) => setModelYears(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field-label">Size</span>
-          <input className="control" value={sizes} onChange={(event) => setSizes(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field-label">Market</span>
-          <input className="control" value={market} onChange={(event) => setMarket(event.target.value)} />
-        </label>
-      </div>
     </form>
   );
 }

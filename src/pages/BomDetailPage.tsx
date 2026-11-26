@@ -201,29 +201,31 @@ export function BomDetailPage() {
             empty="None"
           />
 
-          <h2 className="section-title">Applicability</h2>
-          <dl className="spec-grid">
-            <div>
-              <dt>Model</dt>
-              <dd>{record.applicability.model}</dd>
-            </div>
-            <div>
-              <dt>Category</dt>
-              <dd>{record.applicability.category}</dd>
-            </div>
-            <div>
-              <dt>Model year</dt>
-              <dd>{record.applicability.modelYears}</dd>
-            </div>
-            <div>
-              <dt>Size</dt>
-              <dd>{record.applicability.sizes}</dd>
-            </div>
-            <div>
-              <dt>Market</dt>
-              <dd>{record.applicability.market}</dd>
-            </div>
-          </dl>
+          <section className="scope-card" aria-label="Applicability">
+            <h2 className="section-title">Applicability</h2>
+            <dl className="spec-grid">
+              <div>
+                <dt>Model</dt>
+                <dd>{record.applicability.model}</dd>
+              </div>
+              <div>
+                <dt>Category</dt>
+                <dd>{record.applicability.category}</dd>
+              </div>
+              <div>
+                <dt>Model year</dt>
+                <dd>{record.applicability.modelYears}</dd>
+              </div>
+              <div>
+                <dt>Size</dt>
+                <dd>{record.applicability.sizes}</dd>
+              </div>
+              <div>
+                <dt>Market</dt>
+                <dd>{record.applicability.market}</dd>
+              </div>
+            </dl>
+          </section>
 
           <h2 className="section-title">Substitutes / supersession</h2>
           <DataTable
