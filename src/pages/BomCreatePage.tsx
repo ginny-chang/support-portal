@@ -2,6 +2,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { TopbarSlot } from "../components/AppShell";
 import { Button } from "../components/Button";
 import { SelectMenu } from "../components/SelectMenu";
 import type { BomLine, Serviceability, Supersession } from "../data/bom";
@@ -114,15 +115,15 @@ export function BomCreatePage() {
   }
 
   return (
-    <form className="page create" onSubmit={submit}>
-      <div className="create-head">
-        <div className="summary-tools">
-          <Link className="btn btn-secondary" to={source ? `/bom/${source.id}` : "/bom"}>
-            Cancel
-          </Link>
-          <Button type="submit">{locked ? "Save new revision" : source ? "Save" : "Save draft"}</Button>
-        </div>
-      </div>
+    <form className="page create" id="bom-draft" onSubmit={submit}>
+      <TopbarSlot>
+        <Link className="btn btn-secondary" to={source ? `/bom/${source.id}` : "/bom"}>
+          Cancel
+        </Link>
+        <Button type="submit" form="bom-draft">
+          {locked ? "Save new revision" : source ? "Save" : "Save draft"}
+        </Button>
+      </TopbarSlot>
       {errors.length > 0 ? (
         <ul className="form-errors" role="alert">
           {errors.map((error) => (
