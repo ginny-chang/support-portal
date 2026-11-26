@@ -32,6 +32,9 @@ export function BomCreatePage() {
   const { records, addBom, updateBom } = useBomCatalog();
   const source = bomId ? records.find((record) => record.id === bomId) : undefined;
   const locked = source ? source.status === "released" || source.status === "superseded" || source.status === "obsolete" : false;
+  const [target, setTarget] = useState<"product" | "assembly">(
+    source && !source.product && source.assembly ? "assembly" : "product",
+  );
   const [product, setProduct] = useState(source?.product ?? "");
   const [assembly, setAssembly] = useState(source?.assembly ?? "");
   const [revision, setRevision] = useState(source ? (locked ? nextRevision(source.revision) : source.revision) : revisions[0]);
@@ -58,21 +61,23 @@ export function BomCreatePage() {
       description: line.description.trim(),
       parentPartId: line.parentPartId?.trim() ?? "",
     }));
+    const nextProduct = locked ? (source?.product ?? "") : target === "product" ? product.trim() : "";
+    const nextAssembly = locked ? (source?.assembly ?? "") : target === "assembly" ? assembly.trim() : "";
     const input = {
-      product,
-      assembly,
+      product: nextProduct,
+      assembly: nextAssembly,
       revision,
       reason,
       lines: nextLines,
       applicability: {
-        model: model.trim() || product.trim(),
+        model: model.trim() || nextProduct || nextAssembly,
         category,
         modelYears,
         sizes,
         market,
       },
     };
-    const nextErrors = validateBomDraft(input);
+    const nextErrors = validateBomDraft(input, { exclusiveTarget: !locked });
     setErrors(nextErrors);
     if (nextErrors.length > 0) return;
     const id = source ? updateBom(source.id, input) : addBom(input);
@@ -97,14 +102,56 @@ export function BomCreatePage() {
         </ul>
       ) : null}
       <div className="create-grid">
-        <label className="field">
-          <span className="field-label">Product</span>
-          <input className="control" value={product} readOnly={locked} onChange={(event) => setProduct(event.target.value)} />
-        </label>
-        <label className="field">
-          <span className="field-label">Assembly</span>
-          <input className="control" value={assembly} readOnly={locked} onChange={(event) => setAssembly(event.target.value)} />
-        </label>
+        {locked ? (
+          <>
+            {source?.product ? (
+              <label className="field">
+                <span className="field-label">Product</span>
+                <input className="control" value={source.product} readOnly />
+              </label>
+            ) : null}
+            {source?.assembly ? (
+              <label className="field">
+                <span className="field-label">Assembly</span>
+                <input className="control" value={source.assembly} readOnly />
+              </label>
+            ) : null}
+          </>
+        ) : (
+          <div className="field field-wide">
+            <span className="field-label">Product or Assembly</span>
+            <div className="target-row">
+              <div className="segment" role="radiogroup" aria-label="Product or Assembly">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={target === "product"}
+                  className={target === "product" ? "is-selected" : undefined}
+                  onClick={() => setTarget("product")}
+                >
+                  Product
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={target === "assembly"}
+                  className={target === "assembly" ? "is-selected" : undefined}
+                  onClick={() => setTarget("assembly")}
+                >
+                  Assembly
+                </button>
+              </div>
+              <input
+                className="control"
+                aria-label={target === "product" ? "Product" : "Assembly"}
+                value={target === "product" ? product : assembly}
+                onChange={(event) =>
+                  target === "product" ? setProduct(event.target.value) : setAssembly(event.target.value)
+                }
+              />
+            </div>
+          </div>
+        )}
         <label className="field">
           <span className="field-label">Revision</span>
           {locked ? (

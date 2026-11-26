@@ -9,10 +9,16 @@ export interface BomDraftInput {
   applicability: Applicability;
 }
 
-export function validateBomDraft(input: BomDraftInput): string[] {
+export function validateBomDraft(input: BomDraftInput, options?: { exclusiveTarget?: boolean }): string[] {
   const errors: string[] = [];
-  if (!input.product.trim()) errors.push("Product is required.");
-  if (!input.assembly.trim()) errors.push("Assembly is required.");
+  const product = input.product.trim();
+  const assembly = input.assembly.trim();
+  if (options?.exclusiveTarget !== false) {
+    if (product && assembly) errors.push("Choose Product or Assembly.");
+    else if (!product && !assembly) errors.push("Product or Assembly is required.");
+  } else if (!product && !assembly) {
+    errors.push("Product or Assembly is required.");
+  }
   if (!input.revision.trim()) errors.push("Revision is required.");
   if (!input.reason.trim()) errors.push("Reason is required.");
   if (!input.applicability.model.trim()) errors.push("Model is required.");

@@ -87,7 +87,7 @@ export function BomListPage() {
                 state={{ from: location.search }}
                 onClick={(event) => event.stopPropagation()}
               >
-                {primary}
+                {primary || "—"}
               </Link>
               {secondary ? <span>{secondary}</span> : null}
             </div>
