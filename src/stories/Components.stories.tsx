@@ -40,7 +40,7 @@ function FieldsDemo() {
   const [search, setSearch] = useState("");
   return (
     <div style={{ display: "grid", gap: 16, width: 360 }}>
-      <SearchField label="Search by product, model, assembly, or part number" value={search} onValueChange={setSearch} />
+      <SearchField label="product, model, assembly, or part number." value={search} onValueChange={setSearch} />
       <TextField label="BOM ID" value={text} onChange={(event) => setText(event.target.value)} />
       <SelectField
         label="Revision"

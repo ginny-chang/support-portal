@@ -180,7 +180,7 @@ export function BomListPage() {
     <div className="page">
       <TopbarSlot>
         <SearchField
-          label="Search by product, model, assembly, or part number."
+          label="product, model, assembly, or part number."
           value={draft}
           onValueChange={(value) => {
             setDraft(value);
