@@ -71,7 +71,7 @@ export function AppShell() {
                 <span className="title-count" aria-label={`${count} Service BOM`}>
                   {count}
                 </span>
-              )}
+              ) : null}
             </div>
             <div className="topbar-actions" ref={setTopbarSlot} />
           </header>
