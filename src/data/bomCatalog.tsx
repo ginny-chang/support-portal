@@ -76,7 +76,12 @@ export function BomCatalogProvider({ children }: { children: ReactNode }) {
           const next = nextId(records);
           const record = draftFrom(
             next,
-            { ...input, product: source.product, assembly: source.assembly, revision: nextRevision(source.revision) },
+            {
+              ...input,
+              product: source.product,
+              assembly: source.assembly,
+              revision: input.revision.trim() || nextRevision(source.revision),
+            },
             updatedAt,
             `New revision from ${source.id} ${source.revision} — ${input.reason.trim()}`,
           );

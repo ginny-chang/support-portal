@@ -94,3 +94,24 @@ export function nextRevision(revision: string): string {
   if (/^[A-Y]$/.test(letter)) return String.fromCharCode(letter.charCodeAt(0) + 1);
   return `${letter}2`;
 }
+
+export function revisionForTarget(
+  records: { id: string; product: string; assembly: string; revision: string }[],
+  target: { product: string; assembly: string; excludeId?: string },
+): string {
+  const product = target.product.trim().toLowerCase();
+  const assembly = target.assembly.trim().toLowerCase();
+  if (!product && !assembly) return "A";
+  const letters = records
+    .filter((record) => record.id !== target.excludeId)
+    .filter((record) => {
+      if (product && record.product.trim().toLowerCase() === product) return true;
+      if (assembly && record.assembly.trim().toLowerCase() === assembly) return true;
+      return false;
+    })
+    .map((record) => record.revision.trim().toUpperCase())
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right));
+  if (letters.length === 0) return "A";
+  return nextRevision(letters[letters.length - 1]);
+}

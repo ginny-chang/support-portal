@@ -1,13 +1,12 @@
 import { Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { SelectMenu } from "../components/SelectMenu";
-import { revisions } from "../data/bom";
 import type { BomLine, Serviceability } from "../data/bom";
 import { useBomCatalog } from "../data/bomCatalog";
-import { nextRevision, validateBomDraft } from "../data/bomRules";
+import { nextRevision, revisionForTarget, validateBomDraft } from "../data/bomRules";
 import { serviceabilityLabel } from "../data/labels";
 
 const serviceabilityOptions: Serviceability[] = ["serviceable", "replaceable", "consumable", "assembly"];
@@ -37,7 +36,22 @@ export function BomCreatePage() {
   );
   const [product, setProduct] = useState(source?.product ?? "");
   const [assembly, setAssembly] = useState(source?.assembly ?? "");
-  const [revision, setRevision] = useState(source ? (locked ? nextRevision(source.revision) : source.revision) : revisions[0]);
+  const revision = useMemo(() => {
+    if (locked && source) {
+      const fromSource = nextRevision(source.revision);
+      const fromFamily = revisionForTarget(records, {
+        product: source.product,
+        assembly: source.assembly,
+        excludeId: source.id,
+      });
+      return fromSource.localeCompare(fromFamily) >= 0 ? fromSource : fromFamily;
+    }
+    if (source) return source.revision;
+    return revisionForTarget(records, {
+      product: target === "product" ? product : "",
+      assembly: target === "assembly" ? assembly : "",
+    });
+  }, [assembly, locked, product, records, source, target]);
   const [reason, setReason] = useState("");
   const [lines, setLines] = useState<BomLine[]>(
     source?.lines.map((line) => ({ ...line, parentPartId: line.parentPartId ?? "" })) ?? [emptyLine(0)],
@@ -154,16 +168,7 @@ export function BomCreatePage() {
         )}
         <label className="field">
           <span className="field-label">Revision</span>
-          {locked ? (
-            <input className="control" value={revision} readOnly />
-          ) : (
-            <SelectMenu
-              label="Revision"
-              value={revision}
-              options={revisions.map((item) => ({ value: item, label: item }))}
-              onChange={setRevision}
-            />
-          )}
+          <input className="control" value={revision} readOnly aria-label="Revision" />
         </label>
         <label className="field">
           <span className="field-label">Status</span>
