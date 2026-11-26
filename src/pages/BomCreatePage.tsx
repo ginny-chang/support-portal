@@ -14,8 +14,8 @@ const serviceabilityOptions: Serviceability[] = ["serviceable", "replaceable", "
 const units = ["ea", "set", "pc", "pr"];
 const relations = ["Discontinued supersession", "Specification supersession"];
 
-function emptySupersession(): Supersession {
-  return { fromPartId: "", toPartId: "", relation: relations[0], effectiveDate: "" };
+function emptySupersession(fromPartId = ""): Supersession {
+  return { fromPartId, toPartId: "", relation: relations[0], effectiveDate: "" };
 }
 
 function emptyLine(level: number): BomLine {
@@ -338,6 +338,16 @@ export function BomCreatePage() {
       </Button>
 
       <h2 className="section-title">Substitutes / supersession</h2>
+      {(() => {
+        const partOptions = [
+          ...new Map(
+            lines
+              .filter((line) => line.partId.trim())
+              .map((line) => [line.partId.trim(), line.description.trim()] as const),
+          ).entries(),
+        ].map(([id, description]) => ({ value: id, label: description ? `${id} ${description}` : id }));
+        return (
+          <>
       {supersessions.length > 0 ? (
         <div className="sub-head">
           <span>Original part ID</span>
@@ -349,13 +359,17 @@ export function BomCreatePage() {
       ) : null}
       {supersessions.map((item, index) => (
         <div className="sub-editor" key={index}>
-          <input
-            className="control"
-            aria-label="Original part ID"
+          <SelectMenu
+            label="Original part ID"
             value={item.fromPartId}
-            onChange={(event) =>
+            options={
+              item.fromPartId && !partOptions.some((option) => option.value === item.fromPartId)
+                ? [{ value: item.fromPartId, label: item.fromPartId }, ...partOptions]
+                : partOptions
+            }
+            onChange={(fromPartId) =>
               setSupersessions((current) =>
-                current.map((row, rowIndex) => (rowIndex === index ? { ...row, fromPartId: event.target.value } : row)),
+                current.map((row, rowIndex) => (rowIndex === index ? { ...row, fromPartId } : row)),
               )
             }
           />
@@ -398,9 +412,17 @@ export function BomCreatePage() {
           </button>
         </div>
       ))}
-      <Button variant="secondary" icon={<Plus size={16} />} onClick={() => setSupersessions((current) => [...current, emptySupersession()])}>
+      <Button
+        variant="secondary"
+        icon={<Plus size={16} />}
+        disabled={partOptions.length === 0}
+        onClick={() => setSupersessions((current) => [...current, emptySupersession(partOptions[0]?.value ?? "")])}
+      >
         Add substitute
       </Button>
+          </>
+        );
+      })()}
     </form>
   );
 }
