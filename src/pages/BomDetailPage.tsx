@@ -191,18 +191,8 @@ export function BomDetailPage() {
             </div>
           </dl>
 
-          <h2 className="section-title">Lines</h2>
-          <DataTable
-            caption="Lines"
-            columns={lineColumns}
-            rows={record.lines}
-            rowKey={(line) => line.partId}
-            rowClassName={(line) => (line.obsolete ? "is-obsolete" : undefined)}
-            empty="None"
-          />
-
+          <h2 className="section-title">Applicability</h2>
           <section className="scope-card" aria-label="Applicability">
-            <h2 className="section-title">Applicability</h2>
             <dl className="spec-grid">
               <div>
                 <dt>Model</dt>
@@ -226,6 +216,16 @@ export function BomDetailPage() {
               </div>
             </dl>
           </section>
+
+          <h2 className="section-title">Lines</h2>
+          <DataTable
+            caption="Lines"
+            columns={lineColumns}
+            rows={record.lines}
+            rowKey={(line) => line.partId}
+            rowClassName={(line) => (line.obsolete ? "is-obsolete" : undefined)}
+            empty="None"
+          />
 
           <h2 className="section-title">Substitutes / supersession</h2>
           <DataTable

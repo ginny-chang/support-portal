@@ -906,24 +906,16 @@ table.data .align-right {
 }
 
 .scope-card {
-  margin-top: 22px;
-  padding: 16px 18px 18px;
+  margin-top: 8px;
+  padding: 16px 18px;
   border: 1px solid var(--color-border);
-  border-top: 3px solid var(--color-primary);
   border-radius: 12px;
   background: var(--color-surface);
   box-shadow: 0 8px 24px rgba(22, 24, 29, 0.05);
 }
 
-.scope-card .section-title {
-  margin: 0 0 12px;
-}
-
 .scope-card .spec-grid {
   margin: 0;
-  padding: 14px 16px;
-  border-radius: 10px;
-  background: var(--color-surface-sunken);
 }
 
 .meta-grid dt,
