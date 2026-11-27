@@ -1,13 +1,12 @@
-import L from "leaflet";
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "leaflet/dist/leaflet.css";
 import { TopbarSlot } from "../components/AppShell";
 import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
+import { StockGlobe } from "../components/StockGlobe";
 import { EvilPieChart } from "@/registry/charts/recharts-pie-chart";
 import type { ChartConfig } from "@/registry/ui/recharts-chart";
 import { StatusTag } from "../components/StatusTag";
@@ -24,74 +23,24 @@ const CITY_LATLNG: Record<string, [number, number]> = {
   Kaohsiung: [22.6273, 120.3014],
 };
 
+const SERVICEABILITY_COLORS = {
+  serviceable: ["#0e5f68", "#8fd0d6"],
+  replaceable: ["#243e8c", "#9aafdf"],
+  consumable: ["#5c3e00", "#e4c57a"],
+  assembly: ["#3e3278", "#b7aee0"],
+} as const;
+
 function cityOf(location: string): string {
   return location.split(" ")[0] || location;
 }
 
-function serviceabilityChart(counts: Record<string, number>): ChartConfig {
-  const tone = {
-    serviceable: "var(--status-serviceable-fg)",
-    replaceable: "var(--status-replaceable-fg)",
-    consumable: "var(--status-consumable-fg)",
-    assembly: "var(--status-assembly-fg)",
-  } as const;
+function serviceabilityChart(): ChartConfig {
   return {
-    serviceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("serviceable")} {counts.serviceable ?? 0}</span>, colors: { light: [tone.serviceable], dark: [tone.serviceable] } },
-    replaceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("replaceable")} {counts.replaceable ?? 0}</span>, colors: { light: [tone.replaceable], dark: [tone.replaceable] } },
-    consumable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("consumable")} {counts.consumable ?? 0}</span>, colors: { light: [tone.consumable], dark: [tone.consumable] } },
-    assembly: { label: <span className="whitespace-nowrap">{serviceabilityLabel("assembly")} {counts.assembly ?? 0}</span>, colors: { light: [tone.assembly], dark: [tone.assembly] } },
+    serviceable: { label: serviceabilityLabel("serviceable"), colors: { light: [...SERVICEABILITY_COLORS.serviceable], dark: [...SERVICEABILITY_COLORS.serviceable] } },
+    replaceable: { label: serviceabilityLabel("replaceable"), colors: { light: [...SERVICEABILITY_COLORS.replaceable], dark: [...SERVICEABILITY_COLORS.replaceable] } },
+    consumable: { label: serviceabilityLabel("consumable"), colors: { light: [...SERVICEABILITY_COLORS.consumable], dark: [...SERVICEABILITY_COLORS.consumable] } },
+    assembly: { label: serviceabilityLabel("assembly"), colors: { light: [...SERVICEABILITY_COLORS.assembly], dark: [...SERVICEABILITY_COLORS.assembly] } },
   };
-}
-
-function LocationMap({ places }: { places: { city: string; quantity: number }[] }) {
-  const nodeRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const layerRef = useRef<L.LayerGroup | null>(null);
-
-  useEffect(() => {
-    if (!nodeRef.current || mapRef.current) return;
-    const map = L.map(nodeRef.current, {
-      center: [23.7, 120.9],
-      zoom: 7,
-      scrollWheelZoom: true,
-    });
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-      maxZoom: 19,
-    }).addTo(map);
-    layerRef.current = L.layerGroup().addTo(map);
-    mapRef.current = map;
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      layerRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    const layer = layerRef.current;
-    if (!map || !layer) return;
-    layer.clearLayers();
-    const points: L.LatLngExpression[] = [];
-    for (const place of places) {
-      const latlng = CITY_LATLNG[place.city];
-      if (!latlng) continue;
-      points.push(latlng);
-      L.circleMarker(latlng, {
-        radius: 6,
-        color: "#16181d",
-        weight: 1,
-        fillColor: "#16181d",
-        fillOpacity: 1,
-      })
-        .bindTooltip(`${place.city} ${place.quantity}`, { permanent: true, direction: "right", className: "stock-map-label" })
-        .addTo(layer);
-    }
-    if (points.length > 0) map.fitBounds(L.latLngBounds(points), { padding: [36, 36] });
-  }, [places]);
-
-  return <div ref={nodeRef} className="stock-map" />;
 }
 
 export function PartListPage() {
@@ -100,11 +49,23 @@ export function PartListPage() {
   const [query, setQuery] = useState("");
   const onHand = records.reduce((sum, record) => sum + record.quantity, 0);
   const lowStock = records.filter((record) => record.quantity <= LOW_STOCK).length;
-  const locations = new Set(records.map((record) => cityOf(record.location)));
-  const byLocation = [...locations].map((city) => ({
-    city,
-    quantity: records.filter((record) => cityOf(record.location) === city).reduce((sum, record) => sum + record.quantity, 0),
-  }));
+  const locations = useMemo(() => new Set(records.map((record) => cityOf(record.location))), [records]);
+  const byLocation = useMemo(
+    () =>
+      [...new Set(records.map((record) => cityOf(record.location)))].flatMap((city) => {
+        const latlng = CITY_LATLNG[city];
+        if (!latlng) return [];
+        return [
+          {
+            city,
+            latitude: latlng[0],
+            longitude: latlng[1],
+            quantity: records.filter((record) => cityOf(record.location) === city).reduce((sum, record) => sum + record.quantity, 0),
+          },
+        ];
+      }),
+    [records],
+  );
   const serviceability = (["serviceable", "replaceable", "consumable", "assembly"] as const)
     .map((value) => ({
       value,
@@ -112,7 +73,7 @@ export function PartListPage() {
     }))
     .filter((item) => item.count > 0);
   const pieData = serviceability.map((item) => ({ type: item.value, count: item.count }));
-  const pieConfig = serviceabilityChart(Object.fromEntries(serviceability.map((item) => [item.value, item.count])));
+  const pieConfig = serviceabilityChart();
   const rows = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matched = needle
@@ -187,15 +148,17 @@ export function PartListPage() {
       <section className="dash-charts">
         <article>
           <h2>On hand by location</h2>
-          <LocationMap places={byLocation} />
+          <StockGlobe places={byLocation} />
         </article>
         <article>
           <h2>Serviceability</h2>
-          <EvilPieChart className="aspect-auto h-64 w-full" data={pieData} dataKey="count" nameKey="type" config={pieConfig}>
-            <EvilPieChart.Legend isClickable variant="circle" />
-            <EvilPieChart.Tooltip />
-            <EvilPieChart.Pie isClickable />
-          </EvilPieChart>
+          <div className="parts-pie">
+            <EvilPieChart className="h-full w-full" data={pieData} dataKey="count" nameKey="type" config={pieConfig}>
+              <EvilPieChart.Legend variant="circle" />
+              <EvilPieChart.Tooltip />
+              <EvilPieChart.Pie paddingAngle={3} cornerRadius={8} />
+            </EvilPieChart>
+          </div>
         </article>
       </section>
       <section className="dash-query" aria-label="Spare part lookup">
