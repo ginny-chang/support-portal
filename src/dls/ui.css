@@ -1204,6 +1204,76 @@ table.data .align-right {
   line-height: var(--line-normal);
 }
 
+.message-card {
+  padding-top: 0;
+}
+
+.message-card .tabs {
+  margin: 0 -16px 4px;
+  padding: 0 8px;
+}
+
+.file-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.file-card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.file-card-preview {
+  display: grid;
+  place-items: center;
+  height: 88px;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.04em;
+}
+
+.file-card.is-photo .file-card-preview {
+  background: var(--status-serviceable-bg);
+  color: var(--status-serviceable-fg);
+}
+
+.file-card.is-text .file-card-preview {
+  background: var(--status-review-bg);
+  color: var(--status-review-fg);
+}
+
+.file-card.is-video .file-card-preview {
+  background: var(--status-assembly-bg);
+  color: var(--status-assembly-fg);
+}
+
+.file-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+.file-card-body strong {
+  font-size: var(--font-size-14);
+  font-weight: var(--font-semibold);
+  word-break: break-word;
+}
+
+.file-card-body span,
+.file-card-body time {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+}
+
 .audit-dialog {
   width: min(480px, calc(100% - 48px));
   max-height: min(640px, calc(100% - 48px));

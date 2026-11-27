@@ -107,7 +107,12 @@ export const workOrders: WorkOrderRecord[] = [
     ],
     attachments: [
       { name: "dropout-right.jpg", at: "2026-11-19T15:12", addedBy: "Roger Lo" },
+      { name: "dropout-left.png", at: "2026-11-19T15:14", addedBy: "Roger Lo" },
+      { name: "inspection-notes.txt", at: "2026-11-19T16:02", addedBy: "Roger Lo" },
       { name: "shop-check.pdf", at: "2026-11-20T13:41", addedBy: "Elena Wu" },
+      { name: "estimate.docx", at: "2026-11-20T13:48", addedBy: "Elena Wu" },
+      { name: "dropout-play.mp4", at: "2026-11-20T13:55", addedBy: "Elena Wu" },
+      { name: "shop-walkthrough.mov", at: "2026-11-20T14:02", addedBy: "Elena Wu" },
     ],
     statusHistory: [
       { at: "2026-11-18T09:05", actor: "Elena Wu", status: "draft", change: "Submitted the request" },
