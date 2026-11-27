@@ -25,20 +25,35 @@ function newestFirst<T extends { at: string }>(items: T[]): T[] {
   return [...items].sort((left, right) => right.at.localeCompare(left.at));
 }
 
-function MessageList({ notes }: { notes: WorkOrderMessage[] }) {
-  const rows = newestFirst(notes);
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+  return `${parts[0].slice(0, 1)}${parts[parts.length - 1].slice(0, 1)}`.toUpperCase();
+}
+
+function MessageList({ notes, applicant }: { notes: WorkOrderMessage[]; applicant?: string }) {
+  const rows = [...notes].sort((left, right) => left.at.localeCompare(right.at));
   if (rows.length === 0) return <p className="record-empty">None</p>;
   return (
-    <ol className="message-list">
-      {rows.map((note) => (
-        <li key={`${note.at}-${note.author}`}>
-          <div className="message-meta">
-            <strong>{note.author}</strong>
-            <time dateTime={note.at}>{formatDateTime(note.at)}</time>
-          </div>
-          <p>{note.body}</p>
-        </li>
-      ))}
+    <ol className="chat-list">
+      {rows.map((note) => {
+        const external = applicant != null && note.author === applicant;
+        return (
+          <li key={`${note.at}-${note.author}`} className={external ? "chat-row is-external" : "chat-row"}>
+            <span className={external ? "avatar is-external" : "avatar"} aria-hidden="true">
+              {initials(note.author)}
+            </span>
+            <div>
+              <div className="message-meta">
+                <strong>{note.author}</strong>
+                <time dateTime={note.at}>{formatDateTime(note.at)}</time>
+              </div>
+              <p className="chat-bubble">{note.body}</p>
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -92,9 +107,11 @@ function AttachmentList({ files }: { files: WorkOrderAttachment[] }) {
             <span className="file-card-icon" aria-hidden="true">
               {format.icon}
             </span>
-            <strong>{file.name}</strong>
-            <span>
-              {format.label} · {file.addedBy} · <time dateTime={file.at}>{formatDateTime(file.at)}</time>
+            <span className="file-card-copy">
+              <strong>{file.name}</strong>
+              <span>
+                {format.label} · {file.addedBy} · <time dateTime={file.at}>{formatDateTime(file.at)}</time>
+              </span>
             </span>
           </li>
         );
@@ -103,7 +120,15 @@ function AttachmentList({ files }: { files: WorkOrderAttachment[] }) {
   );
 }
 
-function MessageCard({ internal, external }: { internal: WorkOrderMessage[]; external: WorkOrderMessage[] }) {
+function MessageCard({
+  internal,
+  external,
+  applicant,
+}: {
+  internal: WorkOrderMessage[];
+  external: WorkOrderMessage[];
+  applicant: string;
+}) {
   const [tab, setTab] = useState("internal");
   const notes = tab === "internal" ? internal : external;
   return (
@@ -118,7 +143,7 @@ function MessageCard({ internal, external }: { internal: WorkOrderMessage[]; ext
         ]}
       />
       <div role="tabpanel">
-        <MessageList notes={notes} />
+        <MessageList notes={notes} applicant={tab === "external" ? applicant : undefined} />
       </div>
     </section>
   );
@@ -237,7 +262,6 @@ export function WorkOrderDetailPage() {
               <thead>
                 <tr>
                   <th>Action</th>
-                  <th>From</th>
                   <th>To</th>
                   <th>Who</th>
                   <th>Reason</th>
@@ -247,9 +271,6 @@ export function WorkOrderDetailPage() {
                 {transitionRules.map((rule) => (
                   <tr key={rule.action}>
                     <td>{rule.label}</td>
-                    <td>
-                      <StatusTags labels={rule.from.map((status) => workOrderStatusLabel(status))} />
-                    </td>
                     <td>
                       <StatusTags labels={[rule.to]} />
                     </td>
@@ -266,7 +287,7 @@ export function WorkOrderDetailPage() {
             <StatusHistory events={record.statusHistory} />
           </section>
 
-          <MessageCard internal={record.internalNotes} external={record.applicantMessages} />
+          <MessageCard internal={record.internalNotes} external={record.applicantMessages} applicant={record.applicant} />
 
           <h2 className="section-title">Attachments</h2>
           <AttachmentList files={record.attachments} />

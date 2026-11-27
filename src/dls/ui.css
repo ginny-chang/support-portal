@@ -1233,7 +1233,7 @@ table.data .align-right {
   font-weight: var(--font-semibold);
 }
 
-.message-card .message-list,
+.message-card .chat-list,
 .message-card .record-empty {
   margin-right: 16px;
   margin-left: 16px;
@@ -1242,7 +1242,7 @@ table.data .align-right {
 .file-cards {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1250,37 +1250,93 @@ table.data .align-right {
 
 .file-card {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  min-height: 132px;
-  padding: 16px;
-  border-radius: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
   background: var(--color-surface-sunken);
 }
 
 .file-card-icon {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: var(--color-selected);
   color: var(--color-primary);
 }
 
-.file-card strong {
-  font-size: var(--font-size-14);
-  font-weight: var(--font-semibold);
-  line-height: var(--line-tight);
-  word-break: break-word;
+.file-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.file-card > span,
+.file-card strong {
+  overflow: hidden;
+  font-size: var(--font-size-13);
+  font-weight: var(--font-semibold);
+  line-height: var(--line-tight);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-card-copy > span,
 .file-card time {
   color: var(--color-text-muted);
   font-size: var(--font-size-12);
   line-height: var(--line-normal);
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 12px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.chat-row .avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-12);
+}
+
+.avatar.is-external {
+  background: var(--status-replaceable-bg);
+  color: var(--status-replaceable-fg);
+}
+
+.chat-row .message-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.chat-bubble {
+  margin: 4px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--color-surface-sunken);
+  font-size: var(--font-size-14);
+  line-height: var(--line-normal);
+}
+
+.chat-row.is-external .chat-bubble {
+  background: var(--color-selected);
 }
 
 .audit-dialog {
