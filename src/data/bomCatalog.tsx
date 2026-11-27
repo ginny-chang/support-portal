@@ -5,7 +5,7 @@ import { boms } from "./bom";
 import type { Applicability, BomLine, BomRecord, BomStatus, Supersession } from "./bom";
 import { nextRevision } from "./bomRules";
 
-const CURRENT_USER = "陳宜安";
+const CURRENT_USER = "Roger Lo";
 
 export interface BomWriteInput {
   product: string;

@@ -1,14 +1,4 @@
-import {
-  ArrowLeftRight,
-  ClipboardList,
-  Cpu,
-  FileText,
-  Network,
-  Package,
-  Settings,
-  ShieldAlert,
-  Sparkles,
-} from "lucide-react";
+import { ClipboardList, Cpu, FileText, Network, Package, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import wordmark from "../assets/giant-wordmark.svg";
@@ -26,23 +16,15 @@ const groups: { label: string; items: NavItem[] }[] = [
     items: [
       { id: "bom", label: "Service BOM", icon: Network, to: "/bom" },
       { id: "work-orders", label: "Service Work Order", icon: ClipboardList, to: "/work-orders" },
-      { id: "claims", label: "Quality Claim", icon: ShieldAlert },
-      { id: "replacement", label: "Spare Part Replacement", icon: ArrowLeftRight },
+      { id: "claims", label: "Quality Claim", icon: ShieldAlert, to: "/claims" },
     ],
   },
   {
     label: "Inventory and documents",
     items: [
-      { id: "stock", label: "Spare Part Inventory", icon: Package },
+      { id: "parts", label: "Spare Part Management", icon: Package, to: "/parts" },
       { id: "docs", label: "Technical Document", icon: FileText },
       { id: "firmware", label: "Firmware Library", icon: Cpu },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { id: "assistant", label: "AI Assistant", icon: Sparkles },
-      { id: "admin", label: "Administration", icon: Settings },
     ],
   },
 ];
@@ -83,10 +65,10 @@ export function Sidebar() {
       </nav>
       <div className="sidebar-account">
         <div className="avatar" aria-hidden="true">
-          陳
+          R
         </div>
         <div>
-          <div className="user-name">陳宜安</div>
+          <div className="user-name">Roger Lo</div>
           <div className="user-role">Service engineer</div>
         </div>
       </div>

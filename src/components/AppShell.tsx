@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { useBomCatalog } from "../data/bomCatalog";
+import { useClaims } from "../data/claimCatalog";
+import { useParts } from "../data/partCatalog";
 import { filterBoms, parseQuery } from "../data/query";
 import { useWorkOrders } from "../data/workOrderCatalog";
 import { Sidebar } from "./Sidebar";
@@ -28,35 +30,77 @@ export function AppShell() {
   const [params] = useSearchParams();
   const { records } = useBomCatalog();
   const { records: workOrders } = useWorkOrders();
-  const onList = location.pathname === "/bom";
-  const onWorkList = location.pathname === "/work-orders";
+  const { records: claims } = useClaims();
+  const { records: parts } = useParts();
   const editMatch = location.pathname.match(/^\/bom\/([^/]+)\/edit$/);
-  const creating = location.pathname === "/bom/new";
-  const creatingWork = location.pathname === "/work-orders/new";
+  const creatingBom = location.pathname === "/bom/new";
   const editing = Boolean(editMatch);
-  const detail = location.pathname.startsWith("/bom/") && !creating && !editing;
+  const bomDetail = location.pathname.startsWith("/bom/") && !creatingBom && !editing;
+  const creatingWork = location.pathname === "/work-orders/new";
   const workDetail = /^\/work-orders\/(?!new$)[^/]+$/.test(location.pathname);
+  const creatingClaim = location.pathname === "/claims/new";
+  const claimDetail = /^\/claims\/(?!new$)[^/]+$/.test(location.pathname);
+  const creatingPart = location.pathname === "/parts/new";
+  const partDetail = /^\/parts\/(?!new$)[^/]+$/.test(location.pathname);
+  const onBomList = location.pathname === "/bom";
+  const onWorkList = location.pathname === "/work-orders";
+  const onClaimList = location.pathname === "/claims";
+  const onPartList = location.pathname === "/parts";
   const backTo = `/bom${listFrom(location.state)}`;
-  const countParams = onList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
-  const count = onWorkList ? workOrders.length : filterBoms(records, parseQuery(countParams)).length;
+  const countParams = onBomList ? params : new URLSearchParams(listFrom(location.state).replace(/^\?/, ""));
+  const count = onWorkList
+    ? workOrders.length
+    : onClaimList
+      ? claims.length
+      : onPartList
+        ? parts.length
+        : filterBoms(records, parseQuery(countParams)).length;
+  const countLabel = onWorkList
+    ? "Service Work Order"
+    : onClaimList
+      ? "Quality Claim"
+      : onPartList
+        ? "Spare Part Management"
+        : "Service BOM";
+  const pageTitle = creatingPart
+    ? "Create Spare Part"
+    : onPartList
+      ? "Spare Part Management"
+      : partDetail
+        ? "Spare Part Management detail"
+        : creatingClaim
+          ? "Create Quality Claim"
+          : onClaimList
+            ? "Quality Claim"
+            : claimDetail
+              ? "Quality Claim detail"
+              : creatingWork
+                ? "Create Service Work Order"
+                : onWorkList
+                  ? "Service Work Order"
+                  : workDetail
+                    ? "Service Work Order detail"
+                    : creatingBom
+                      ? "Create BOM"
+                      : editing
+                        ? "Update BOM"
+                        : bomDetail
+                          ? "Service BOM detail"
+                          : "Service BOM";
+  const crumb = partDetail
+    ? { to: "/parts", label: "Spare Part Management" }
+    : claimDetail
+      ? { to: "/claims", label: "Quality Claim" }
+      : workDetail
+        ? { to: "/work-orders", label: "Service Work Order" }
+        : bomDetail
+          ? { to: backTo, label: "Service BOM" }
+          : null;
   const [topbarSlot, setTopbarSlot] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const pageTitle = creatingWork
-      ? "Create Service Work Order"
-      : onWorkList
-        ? "Service Work Order"
-        : workDetail
-          ? "Service Work Order detail"
-          : creating
-            ? "Create BOM"
-            : editing
-              ? "Update BOM"
-              : detail
-                ? "Service BOM detail"
-                : "Service BOM";
     document.title = `${pageTitle} · Giant Support Portal`;
-  }, [creating, creatingWork, detail, editing, onWorkList, workDetail]);
+  }, [pageTitle]);
 
   return (
     <div className="app-frame">
@@ -71,26 +115,16 @@ export function AppShell() {
                   <ArrowLeft size={18} aria-hidden="true" />
                 </Link>
               ) : null}
-              {detail || workDetail ? (
-                <Link className="crumb crumb-parent" to={workDetail ? "/work-orders" : backTo}>
+              {crumb ? (
+                <Link className="crumb crumb-parent" to={crumb.to}>
                   <ArrowLeft size={14} aria-hidden="true" />
-                  {workDetail ? "Service Work Order" : "Service BOM"}
+                  {crumb.label}
                 </Link>
               ) : (
-                <h1>
-                  {creatingWork
-                    ? "Create Service Work Order"
-                    : creating
-                      ? "Create BOM"
-                      : editing
-                        ? "Update BOM"
-                        : onWorkList
-                          ? "Service Work Order"
-                          : "Service BOM"}
-                </h1>
+                <h1>{pageTitle}</h1>
               )}
-              {onList || onWorkList ? (
-                <span className="title-count" aria-label={`${count} Service BOM`}>
+              {onBomList || onWorkList || onClaimList || onPartList ? (
+                <span className="title-count" aria-label={`${count} ${countLabel}`}>
                   {count}
                 </span>
               ) : null}
