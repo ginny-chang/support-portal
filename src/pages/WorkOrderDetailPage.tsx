@@ -102,26 +102,35 @@ function AttachmentList({ files }: { files: WorkOrderAttachment[] }) {
   );
 }
 
-function RelatedOrders({ record, records }: { record: WorkOrderRecord; records: WorkOrderRecord[] }) {
+function relatedOrders(record: WorkOrderRecord, records: WorkOrderRecord[]) {
   const linked = linkedWorkOrders(record, records);
   const duplicates = possibleDuplicates(record, records);
   const shown = [...linked];
   for (const item of duplicates) {
     if (!shown.some((row) => row.id === item.id)) shown.push(item);
   }
-  const duplicateIds = new Set(duplicates.map((item) => item.id));
-  if (shown.length === 0) return <p className="record-empty">None</p>;
+  return { shown, duplicateIds: new Set(duplicates.map((item) => item.id)) };
+}
+
+function RelatedOrders({ record, records }: { record: WorkOrderRecord; records: WorkOrderRecord[] }) {
+  const { shown, duplicateIds } = relatedOrders(record, records);
+  if (shown.length === 0) return null;
   return (
-    <ul className="linked-list">
-      {shown.map((item) => (
-        <li key={item.id}>
-          <Link to={`/work-orders/${item.id}`}>{item.id}</Link>
-          <span>{item.request}</span>
-          {duplicateIds.has(item.id) ? <span>Possible duplicate</span> : null}
-          <StatusTag tone={workOrderStatusTone(item.status)}>{workOrderStatusLabel(item.status)}</StatusTag>
-        </li>
-      ))}
-    </ul>
+    <>
+      <h2 className="section-title">Related work orders</h2>
+      <section className="record-card" aria-label="Related work orders">
+        <ul className="linked-list">
+          {shown.map((item) => (
+            <li key={item.id}>
+              <Link to={`/work-orders/${item.id}`}>{item.id}</Link>
+              <span>{item.request}</span>
+              {duplicateIds.has(item.id) ? <span>Possible duplicate</span> : null}
+              <StatusTag tone={workOrderStatusTone(item.status)}>{workOrderStatusLabel(item.status)}</StatusTag>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   );
 }
 
@@ -189,10 +198,7 @@ export function WorkOrderDetailPage() {
             </div>
           </dl>
 
-          <h2 className="section-title">Related work orders</h2>
-          <section className="record-card" aria-label="Related work orders">
-            <RelatedOrders record={record} records={records} />
-          </section>
+          <RelatedOrders record={record} records={records} />
 
           <h2 className="section-title">Status transitions</h2>
           <section className="record-card" aria-label="Status transitions">
