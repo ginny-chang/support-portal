@@ -10,7 +10,7 @@ import { StatusTag } from "../components/StatusTag";
 import type { QualityClaim } from "../data/claims";
 import { useClaims } from "../data/claimCatalog";
 import { formatDateTime } from "../data/format";
-import { statusLabel, statusTone } from "../data/labels";
+import { workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
 
 export function ClaimListPage() {
   const navigate = useNavigate();
@@ -62,8 +62,8 @@ export function ClaimListPage() {
       {
         id: "status",
         header: "Status",
-        width: "124px",
-        render: (row) => <StatusTag tone={statusTone(row.status)}>{statusLabel(row.status)}</StatusTag>,
+        width: "176px",
+        render: (row) => <StatusTag tone={workOrderStatusTone(row.status)}>{workOrderStatusLabel(row.status)}</StatusTag>,
       },
       { id: "dealer", header: "Dealer", render: (row) => row.dealer },
       { id: "owner", header: "Owner", width: "120px", render: (row) => row.owner },

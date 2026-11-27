@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { StatusTag } from "../components/StatusTag";
 import { useClaims } from "../data/claimCatalog";
 import { formatDateTime } from "../data/format";
-import { statusLabel, statusTone } from "../data/labels";
+import { decisionLabel, decisionTone, workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
 
 export function ClaimDetailPage() {
   const { claimId = "" } = useParams();
@@ -24,7 +24,7 @@ export function ClaimDetailPage() {
         <div>
           <div className="detail-title">
             <h1>{record.product || record.assembly}</h1>
-            <StatusTag tone={statusTone(record.status)}>{statusLabel(record.status)}</StatusTag>
+            <StatusTag tone={workOrderStatusTone(record.status)}>{workOrderStatusLabel(record.status)}</StatusTag>
           </div>
           <dl className="meta-grid">
             <div>
@@ -52,6 +52,35 @@ export function ClaimDetailPage() {
               <dd>{record.description}</dd>
             </div>
           </dl>
+          <h2 className="section-title">Decision</h2>
+          {record.decisions.length === 0 ? (
+            <p className="record-empty">None</p>
+          ) : (
+            <ul className="linked-list">
+              {record.decisions.map((item) => (
+                <li key={`${item.description}-${item.decision}`}>
+                  <span>{item.description}</span>
+                  <StatusTag tone={decisionTone(item.decision)}>{decisionLabel(item.decision)}</StatusTag>
+                  <span>{item.quantity}</span>
+                  <span>{item.reason}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <h2 className="section-title">Fulfillment</h2>
+          {record.fulfillment.length === 0 ? (
+            <p className="record-empty">None</p>
+          ) : (
+            <ul className="linked-list">
+              {record.fulfillment.map((item) => (
+                <li key={`${item.at}-${item.evidence}`}>
+                  <strong>{item.evidence}</strong>
+                  <span>{item.actor}</span>
+                  <time dateTime={item.at}>{formatDateTime(item.at)}</time>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

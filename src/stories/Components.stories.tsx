@@ -83,6 +83,14 @@ const tones: { tone: TagTone; label: string }[] = [
   { tone: "replaceable", label: "Replaceable" },
   { tone: "consumable", label: "Consumable" },
   { tone: "assembly", label: "Assembly replacement" },
+  { tone: "submitted", label: "Submitted" },
+  { tone: "awaiting", label: "Awaiting information" },
+  { tone: "approved", label: "Approved" },
+  { tone: "fulfillment", label: "In fulfillment" },
+  { tone: "resolved", label: "Resolved" },
+  { tone: "closed", label: "Closed" },
+  { tone: "cancelled", label: "Cancelled" },
+  { tone: "rejected", label: "Rejected" },
 ];
 
 export const StatusTags: StoryObj = {

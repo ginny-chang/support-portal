@@ -54,6 +54,8 @@ export function ClaimCatalogProvider({ children }: { children: ReactNode }) {
           status: "draft",
           owner: CURRENT_USER,
           updatedAt: taipeiStamp(),
+          decisions: [],
+          fulfillment: [],
         };
         setRecords((current) => [record, ...current]);
         return id;

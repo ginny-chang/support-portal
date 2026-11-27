@@ -14,7 +14,11 @@ export type TagTone =
   | "approved"
   | "rejected"
   | "cancelled"
-  | "reopened";
+  | "submitted"
+  | "awaiting"
+  | "fulfillment"
+  | "resolved"
+  | "closed";
 
 export function statusLabel(status: BomStatus): string {
   switch (status) {
@@ -35,16 +39,22 @@ export function workOrderStatusLabel(status: WorkOrderStatus): string {
   switch (status) {
     case "draft":
       return "Draft";
+    case "submitted":
+      return "Submitted";
     case "in_review":
-      return "In Review";
+      return "In review";
+    case "awaiting_information":
+      return "Awaiting information";
     case "approved":
       return "Approved";
-    case "rejected":
-      return "Rejected";
+    case "in_fulfillment":
+      return "In fulfillment";
+    case "resolved":
+      return "Resolved";
+    case "closed":
+      return "Closed";
     case "cancelled":
       return "Cancelled";
-    case "reopened":
-      return "Reopened";
   }
 }
 
@@ -52,16 +62,44 @@ export function workOrderStatusTone(status: WorkOrderStatus): TagTone {
   switch (status) {
     case "draft":
       return "draft";
+    case "submitted":
+      return "submitted";
     case "in_review":
       return "review";
+    case "awaiting_information":
+      return "awaiting";
     case "approved":
       return "approved";
-    case "rejected":
-      return "rejected";
+    case "in_fulfillment":
+      return "fulfillment";
+    case "resolved":
+      return "resolved";
+    case "closed":
+      return "closed";
     case "cancelled":
       return "cancelled";
-    case "reopened":
-      return "reopened";
+  }
+}
+
+export function decisionLabel(decision: "approved" | "partially_approved" | "rejected"): string {
+  switch (decision) {
+    case "approved":
+      return "Approved";
+    case "partially_approved":
+      return "Partially approved";
+    case "rejected":
+      return "Rejected";
+  }
+}
+
+export function decisionTone(decision: "approved" | "partially_approved" | "rejected"): TagTone {
+  switch (decision) {
+    case "approved":
+      return "approved";
+    case "partially_approved":
+      return "awaiting";
+    case "rejected":
+      return "rejected";
   }
 }
 

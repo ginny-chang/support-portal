@@ -71,7 +71,7 @@ export function WorkOrderListPage() {
       {
         id: "status",
         header: "Status",
-        width: "132px",
+        width: "176px",
         render: (row) => <StatusTag tone={workOrderStatusTone(row.status)}>{workOrderStatusLabel(row.status)}</StatusTag>,
       },
       { id: "dealer", header: "Dealer", render: (row) => row.dealer },

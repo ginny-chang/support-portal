@@ -22,6 +22,9 @@ function lineFromBom(source: BomLine): WorkOrderLine {
     unit: source.unit,
     approvedQuantity: null,
     approvedAmount: null,
+    decision: null,
+    decisionQuantity: null,
+    decisionReason: "",
   };
 }
 

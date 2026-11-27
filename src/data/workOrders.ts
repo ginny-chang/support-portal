@@ -1,4 +1,17 @@
-export type WorkOrderStatus = "draft" | "in_review" | "approved" | "rejected" | "cancelled" | "reopened";
+export type WorkOrderStatus =
+  | "draft"
+  | "submitted"
+  | "in_review"
+  | "awaiting_information"
+  | "approved"
+  | "in_fulfillment"
+  | "resolved"
+  | "closed"
+  | "cancelled";
+
+export type TicketDecision = "approved" | "partially_approved" | "rejected";
+
+export type FulfillmentEvidence = "Credit posted" | "Replacement delivered";
 
 export interface WorkOrderLine {
   partId: string;
@@ -7,6 +20,15 @@ export interface WorkOrderLine {
   unit: string;
   approvedQuantity: number | null;
   approvedAmount: number | null;
+  decision: TicketDecision | null;
+  decisionQuantity: number | null;
+  decisionReason: string;
+}
+
+export interface WorkOrderFulfillment {
+  evidence: FulfillmentEvidence;
+  at: string;
+  actor: string;
 }
 
 export interface WorkOrderAssignment {
@@ -54,6 +76,7 @@ export interface WorkOrderRecord {
   internalNotes: WorkOrderMessage[];
   applicantMessages: WorkOrderMessage[];
   attachments: WorkOrderAttachment[];
+  fulfillment: WorkOrderFulfillment[];
   statusHistory: WorkOrderStatusEvent[];
 }
 
@@ -70,7 +93,7 @@ export const workOrders: WorkOrderRecord[] = [
     status: "in_review",
     owner: "Roger Lo",
     updatedAt: "2026-11-20T14:12",
-    lines: [{ partId: "SP-FR-4418", description: "Rear dropout, right", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null }],
+    lines: [{ partId: "SP-FR-4418", description: "Rear dropout, right", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
     relatedIds: ["WO-SB-26019"],
     assignments: [
       { at: "2026-11-18T09:40", actor: "Kevin Huang", assignee: "Kevin Huang" },
@@ -114,9 +137,11 @@ export const workOrders: WorkOrderRecord[] = [
       { name: "dropout-play.mp4", at: "2026-11-20T13:55", addedBy: "Elena Wu" },
       { name: "shop-walkthrough.mov", at: "2026-11-20T14:02", addedBy: "Elena Wu" },
     ],
+    fulfillment: [],
     statusHistory: [
-      { at: "2026-11-18T09:05", actor: "Elena Wu", status: "draft", change: "Submitted the request" },
-      { at: "2026-11-20T14:12", actor: "Roger Lo", status: "in_review", change: "Submitted for review" },
+      { at: "2026-11-18T09:05", actor: "Elena Wu", status: "draft", change: "Saved draft" },
+      { at: "2026-11-18T09:40", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-20T14:12", actor: "Roger Lo", status: "in_review", change: "Assigned for review" },
     ],
   },
   {
@@ -131,7 +156,7 @@ export const workOrders: WorkOrderRecord[] = [
     status: "draft",
     owner: "Iris Chang",
     updatedAt: "2026-11-18T10:15",
-    lines: [{ partId: "SP-WH-7722", description: "Front hub", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null }],
+    lines: [{ partId: "SP-WH-7722", description: "Front hub", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
     relatedIds: [],
     assignments: [{ at: "2026-11-18T09:40", actor: "Iris Chang", assignee: "Iris Chang" }],
     internalNotes: [
@@ -149,7 +174,8 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [],
-    statusHistory: [{ at: "2026-11-18T09:12", actor: "Chris Yeh", status: "draft", change: "Submitted the request" }],
+    fulfillment: [],
+    statusHistory: [{ at: "2026-11-18T09:12", actor: "Chris Yeh", status: "draft", change: "Saved draft" }],
   },
   {
     id: "WO-SB-26011",
@@ -163,7 +189,7 @@ export const workOrders: WorkOrderRecord[] = [
     status: "approved",
     owner: "Mars Lin",
     updatedAt: "2026-10-02T16:05",
-    lines: [{ partId: "SP-BR-5128", description: "Brake hose", quantity: 1, unit: "set", approvedQuantity: 1, approvedAmount: 1860 }],
+    lines: [{ partId: "SP-BR-5128", description: "Brake hose", quantity: 2, unit: "set", approvedQuantity: 1, approvedAmount: 1860, decision: "partially_approved", decisionQuantity: 1, decisionReason: "One hose approved for the leak. The second hose is wear." }],
     relatedIds: [],
     assignments: [{ at: "2026-09-28T14:10", actor: "Kevin Huang", assignee: "Mars Lin" }],
     internalNotes: [
@@ -186,9 +212,11 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [{ name: "brake-hose-leak.jpg", at: "2026-09-28T11:04", addedBy: "Nina Kuo" }],
+    fulfillment: [],
     statusHistory: [
-      { at: "2026-09-28T11:00", actor: "Nina Kuo", status: "draft", change: "Submitted the request" },
-      { at: "2026-09-29T09:30", actor: "Mars Lin", status: "in_review", change: "Submitted for review" },
+      { at: "2026-09-28T11:00", actor: "Nina Kuo", status: "draft", change: "Saved draft" },
+      { at: "2026-09-28T14:10", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-09-29T09:30", actor: "Mars Lin", status: "in_review", change: "Assigned for review" },
       { at: "2026-10-02T16:05", actor: "Brian Wu", status: "approved", change: "Approved" },
     ],
   },
@@ -204,7 +232,7 @@ export const workOrders: WorkOrderRecord[] = [
     status: "in_review",
     owner: "Iris Chang",
     updatedAt: "2026-11-21T09:18",
-    lines: [{ partId: "SP-FR-4418", description: "Rear dropout, right", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null }],
+    lines: [{ partId: "SP-FR-4418", description: "Rear dropout, right", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
     relatedIds: ["WO-SB-26021"],
     assignments: [{ at: "2026-11-21T09:18", actor: "Kevin Huang", assignee: "Iris Chang" }],
     internalNotes: [
@@ -222,9 +250,11 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [],
+    fulfillment: [],
     statusHistory: [
-      { at: "2026-11-21T08:50", actor: "Elena Wu", status: "draft", change: "Submitted the request" },
-      { at: "2026-11-21T09:18", actor: "Iris Chang", status: "in_review", change: "Submitted for review" },
+      { at: "2026-11-21T08:50", actor: "Elena Wu", status: "draft", change: "Saved draft" },
+      { at: "2026-11-21T09:00", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-21T09:18", actor: "Iris Chang", status: "in_review", change: "Assigned for review" },
     ],
   },
   {
@@ -236,10 +266,10 @@ export const workOrders: WorkOrderRecord[] = [
     dealer: "Giant Taipei",
     applicant: "Elena Wu",
     request: "Fork crown crack",
-    status: "rejected",
+    status: "resolved",
     owner: "Kevin Huang",
     updatedAt: "2026-11-12T16:40",
-    lines: [{ partId: "SP-FK-3301", description: "Fork", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null }],
+    lines: [{ partId: "SP-FK-3301", description: "Fork", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: "rejected", decisionQuantity: 0, decisionReason: "Fork crown damage is outside this work order." }],
     relatedIds: [],
     assignments: [{ at: "2026-11-12T10:05", actor: "Kevin Huang", assignee: "Kevin Huang" }],
     internalNotes: [
@@ -257,10 +287,12 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [],
+    fulfillment: [],
     statusHistory: [
-      { at: "2026-11-12T09:40", actor: "Elena Wu", status: "draft", change: "Submitted the request" },
-      { at: "2026-11-12T10:05", actor: "Kevin Huang", status: "in_review", change: "Submitted for review" },
-      { at: "2026-11-12T16:40", actor: "Kevin Huang", status: "rejected", change: "Rejected", reason: "Fork crown damage is outside this work order." },
+      { at: "2026-11-12T09:40", actor: "Elena Wu", status: "draft", change: "Saved draft" },
+      { at: "2026-11-12T10:00", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-12T10:05", actor: "Kevin Huang", status: "in_review", change: "Assigned for review" },
+      { at: "2026-11-12T16:40", actor: "Kevin Huang", status: "resolved", change: "Rejected", reason: "Fork crown damage is outside this work order." },
     ],
   },
   {
@@ -275,7 +307,7 @@ export const workOrders: WorkOrderRecord[] = [
     status: "cancelled",
     owner: "Iris Chang",
     updatedAt: "2026-11-08T11:22",
-    lines: [{ partId: "SP-WH-7723", description: "Rear hub", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null }],
+    lines: [{ partId: "SP-WH-7723", description: "Rear hub", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
     relatedIds: [],
     assignments: [{ at: "2026-11-08T09:10", actor: "Iris Chang", assignee: "Iris Chang" }],
     internalNotes: [],
@@ -287,9 +319,11 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [],
+    fulfillment: [],
     statusHistory: [
-      { at: "2026-11-08T09:02", actor: "Chris Yeh", status: "draft", change: "Submitted the request" },
-      { at: "2026-11-08T11:22", actor: "Chris Yeh", status: "cancelled", change: "Cancelled", reason: "The rider withdrew the request." },
+      { at: "2026-11-08T09:02", actor: "Chris Yeh", status: "draft", change: "Saved draft" },
+      { at: "2026-11-08T09:10", actor: "Iris Chang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-08T11:22", actor: "Iris Chang", status: "cancelled", change: "Cancelled", reason: "The rider withdrew the request." },
     ],
   },
   {
@@ -301,10 +335,10 @@ export const workOrders: WorkOrderRecord[] = [
     dealer: "Giant Kaohsiung",
     applicant: "Nina Kuo",
     request: "Brake pad wear",
-    status: "reopened",
+    status: "in_review",
     owner: "Roger Lo",
     updatedAt: "2026-11-26T15:05",
-    lines: [{ partId: "SP-BR-5120", description: "Disc brake caliper", quantity: 1, unit: "ea", approvedQuantity: 1, approvedAmount: 420 }],
+    lines: [{ partId: "SP-BR-5120", description: "Disc brake caliper", quantity: 1, unit: "ea", approvedQuantity: 1, approvedAmount: 420, decision: "approved", decisionQuantity: 1, decisionReason: "Caliper quantity approved before the visit was reopened." }],
     relatedIds: [],
     assignments: [
       { at: "2026-11-02T10:00", actor: "Kevin Huang", assignee: "Mars Lin" },
@@ -330,12 +364,121 @@ export const workOrders: WorkOrderRecord[] = [
       },
     ],
     attachments: [],
+    fulfillment: [{ evidence: "Replacement delivered", at: "2026-11-04T08:10", actor: "Brian Wu" }],
     statusHistory: [
-      { at: "2026-11-02T09:12", actor: "Nina Kuo", status: "draft", change: "Submitted the request" },
-      { at: "2026-11-02T11:00", actor: "Mars Lin", status: "in_review", change: "Submitted for review" },
+      { at: "2026-11-02T09:12", actor: "Nina Kuo", status: "draft", change: "Saved draft" },
+      { at: "2026-11-02T10:00", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-02T11:00", actor: "Mars Lin", status: "in_review", change: "Assigned for review" },
       { at: "2026-11-03T16:10", actor: "Brian Wu", status: "approved", change: "Approved" },
-      { at: "2026-11-04T09:30", actor: "Nina Kuo", status: "cancelled", change: "Cancelled", reason: "The shop closed the visit early." },
-      { at: "2026-11-26T15:05", actor: "Roger Lo", status: "reopened", change: "Reopened", reason: "The approved caliper was never fitted." },
+      { at: "2026-11-03T17:00", actor: "Brian Wu", status: "in_fulfillment", change: "Fulfill replacement" },
+      { at: "2026-11-04T08:40", actor: "Mars Lin", status: "resolved", change: "Resolved" },
+      { at: "2026-11-04T09:30", actor: "Mars Lin", status: "closed", change: "Closed" },
+      { at: "2026-11-26T15:05", actor: "Roger Lo", status: "in_review", change: "Reopened", reason: "The approved caliper was never fitted." },
+    ],
+  },
+  {
+    id: "WO-SB-26016",
+    bomId: "BOM-SB-26031",
+    product: "Propel Advanced SL",
+    assembly: "Wheelset assembly",
+    serialNumber: "YP330118",
+    dealer: "Giant Taichung",
+    applicant: "Chris Yeh",
+    request: "Spoke break on the rear wheel",
+    status: "submitted",
+    owner: "Kevin Huang",
+    updatedAt: "2026-11-16T10:20",
+    lines: [{ partId: "SP-WH-7723", description: "Rear hub", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
+    relatedIds: [],
+    assignments: [{ at: "2026-11-16T10:20", actor: "Kevin Huang", assignee: "Kevin Huang" }],
+    internalNotes: [],
+    applicantMessages: [{ at: "2026-11-16T10:05", author: "Chris Yeh", body: "A rear spoke broke on the ride into the shop." }],
+    attachments: [],
+    fulfillment: [],
+    statusHistory: [
+      { at: "2026-11-16T10:05", actor: "Chris Yeh", status: "draft", change: "Saved draft" },
+      { at: "2026-11-16T10:20", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+    ],
+  },
+  {
+    id: "WO-SB-26015",
+    bomId: "BOM-SB-26014",
+    product: "TCR Advanced SL",
+    assembly: "Frame assembly",
+    serialNumber: "YS229001",
+    dealer: "Giant Taipei",
+    applicant: "Elena Wu",
+    request: "Seat cluster paint crack",
+    status: "awaiting_information",
+    owner: "Roger Lo",
+    updatedAt: "2026-11-14T15:10",
+    lines: [{ partId: "SP-FR-4418", description: "Rear dropout, right", quantity: 1, unit: "ea", approvedQuantity: null, approvedAmount: null, decision: null, decisionQuantity: null, decisionReason: "" }],
+    relatedIds: [],
+    assignments: [{ at: "2026-11-14T11:00", actor: "Kevin Huang", assignee: "Roger Lo" }],
+    internalNotes: [{ at: "2026-11-14T15:10", author: "Roger Lo", body: "Waiting on a photo of the seat cluster before review can continue." }],
+    applicantMessages: [{ at: "2026-11-14T15:12", author: "Roger Lo", body: "Please send a photo of the seat cluster." }],
+    attachments: [],
+    fulfillment: [],
+    statusHistory: [
+      { at: "2026-11-14T09:40", actor: "Elena Wu", status: "draft", change: "Saved draft" },
+      { at: "2026-11-14T10:10", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-14T11:00", actor: "Kevin Huang", status: "in_review", change: "Assigned for review" },
+      { at: "2026-11-14T15:10", actor: "Roger Lo", status: "awaiting_information", change: "Await information" },
+    ],
+  },
+  {
+    id: "WO-SB-26012",
+    bomId: "BOM-SB-26022",
+    product: "Defy Advanced Pro",
+    assembly: "Disc brake assembly",
+    serialNumber: "YD552010",
+    dealer: "Giant Kaohsiung",
+    applicant: "Nina Kuo",
+    request: "Front brake pad set",
+    status: "in_fulfillment",
+    owner: "Mars Lin",
+    updatedAt: "2026-11-10T16:40",
+    lines: [{ partId: "SP-BR-5120", description: "Disc brake caliper", quantity: 1, unit: "ea", approvedQuantity: 1, approvedAmount: 420, decision: "approved", decisionQuantity: 1, decisionReason: "Replacement quantity approved." }],
+    relatedIds: [],
+    assignments: [{ at: "2026-11-10T09:20", actor: "Kevin Huang", assignee: "Mars Lin" }],
+    internalNotes: [],
+    applicantMessages: [{ at: "2026-11-10T09:00", author: "Nina Kuo", body: "The front brake pad set is worn through." }],
+    attachments: [],
+    fulfillment: [],
+    statusHistory: [
+      { at: "2026-11-10T09:00", actor: "Nina Kuo", status: "draft", change: "Saved draft" },
+      { at: "2026-11-10T09:10", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-11-10T09:20", actor: "Kevin Huang", status: "in_review", change: "Assigned for review" },
+      { at: "2026-11-10T14:00", actor: "Brian Wu", status: "approved", change: "Approved" },
+      { at: "2026-11-10T16:40", actor: "Brian Wu", status: "in_fulfillment", change: "Fulfill replacement" },
+    ],
+  },
+  {
+    id: "WO-SB-26007",
+    bomId: "BOM-SB-26022",
+    product: "Defy Advanced Pro",
+    assembly: "Disc brake assembly",
+    serialNumber: "YD100442",
+    dealer: "Giant Kaohsiung",
+    applicant: "Nina Kuo",
+    request: "Warranty credit for a leaking caliper",
+    status: "closed",
+    owner: "Mars Lin",
+    updatedAt: "2026-09-20T11:15",
+    lines: [{ partId: "SP-BR-5120", description: "Disc brake caliper", quantity: 1, unit: "ea", approvedQuantity: 1, approvedAmount: 960, decision: "approved", decisionQuantity: 1, decisionReason: "Credit amount approved for the leaking caliper." }],
+    relatedIds: [],
+    assignments: [{ at: "2026-09-18T10:00", actor: "Kevin Huang", assignee: "Mars Lin" }],
+    internalNotes: [],
+    applicantMessages: [{ at: "2026-09-20T11:20", author: "Mars Lin", body: "The credit has been posted." }],
+    attachments: [],
+    fulfillment: [{ evidence: "Credit posted", at: "2026-09-20T11:00", actor: "Brian Wu" }],
+    statusHistory: [
+      { at: "2026-09-18T09:00", actor: "Nina Kuo", status: "draft", change: "Saved draft" },
+      { at: "2026-09-18T09:30", actor: "Kevin Huang", status: "submitted", change: "Submitted" },
+      { at: "2026-09-18T10:00", actor: "Kevin Huang", status: "in_review", change: "Assigned for review" },
+      { at: "2026-09-19T15:00", actor: "Brian Wu", status: "approved", change: "Approved" },
+      { at: "2026-09-20T11:00", actor: "Mars Lin", status: "resolved", change: "Resolved" },
+      { at: "2026-09-20T11:15", actor: "Mars Lin", status: "closed", change: "Closed" },
     ],
   },
 ];

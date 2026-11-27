@@ -7,7 +7,7 @@ import { DataTable } from "../components/DataTable";
 import { StatusTag } from "../components/StatusTag";
 import { Tabs } from "../components/Tabs";
 import { formatDateTime } from "../data/format";
-import { workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
+import { decisionLabel, decisionTone, workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
 import type { WorkOrderAttachment, WorkOrderLine, WorkOrderMessage, WorkOrderRecord, WorkOrderStatus, WorkOrderStatusEvent } from "../data/workOrders";
 import { useWorkOrders } from "../data/workOrderCatalog";
 import { possibleDuplicates, transitionRules } from "../data/workOrderRules";
@@ -19,6 +19,19 @@ const lineColumns: Column<WorkOrderLine>[] = [
   { id: "approvedQuantity", header: "Approved quantity", width: "140px", align: "right", render: (line) => line.approvedQuantity ?? "—" },
   { id: "amount", header: "Amount", width: "96px", align: "right", render: (line) => line.approvedAmount ?? "—" },
   { id: "unit", header: "Unit", width: "72px", render: (line) => line.unit },
+];
+
+const decisionColumns: Column<WorkOrderLine>[] = [
+  { id: "part", header: "Part ID", width: "160px", render: (line) => line.partId },
+  {
+    id: "decision",
+    header: "Decision",
+    width: "180px",
+    render: (line) =>
+      line.decision ? <StatusTag tone={decisionTone(line.decision)}>{decisionLabel(line.decision)}</StatusTag> : "—",
+  },
+  { id: "quantity", header: "Quantity", width: "96px", align: "right", render: (line) => line.decisionQuantity ?? "—" },
+  { id: "reason", header: "Reason", render: (line) => line.decisionReason || "—" },
 ];
 
 function newestFirst<T extends { at: string }>(items: T[]): T[] {
@@ -151,11 +164,14 @@ function MessageCard({
 
 const statusByLabel: Record<string, WorkOrderStatus> = {
   Draft: "draft",
-  "In Review": "in_review",
+  Submitted: "submitted",
+  "In review": "in_review",
+  "Awaiting information": "awaiting_information",
   Approved: "approved",
-  Rejected: "rejected",
+  "In fulfillment": "in_fulfillment",
+  Resolved: "resolved",
+  Closed: "closed",
   Cancelled: "cancelled",
-  Reopened: "reopened",
 };
 
 function StatusTags({ labels }: { labels: string[] }) {
@@ -291,6 +307,30 @@ export function WorkOrderDetailPage() {
 
           <h2 className="section-title">Attachments</h2>
           <AttachmentList files={record.attachments} />
+
+          <h2 className="section-title">Decision</h2>
+          <DataTable
+            caption="Decision"
+            columns={decisionColumns}
+            rows={record.lines}
+            rowKey={(line) => line.partId}
+            empty="None"
+          />
+
+          <h2 className="section-title">Fulfillment</h2>
+          {record.fulfillment.length === 0 ? (
+            <p className="record-empty">None</p>
+          ) : (
+            <ul className="linked-list">
+              {record.fulfillment.map((item) => (
+                <li key={`${item.at}-${item.evidence}`}>
+                  <strong>{item.evidence}</strong>
+                  <span>{item.actor}</span>
+                  <time dateTime={item.at}>{formatDateTime(item.at)}</time>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <h2 className="section-title">Lines</h2>
           <DataTable caption="Lines" columns={lineColumns} rows={record.lines} rowKey={(line) => line.partId} empty="None" />

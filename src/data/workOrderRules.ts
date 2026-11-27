@@ -4,7 +4,19 @@ export const WORK_ORDER_ACTOR = "Roger Lo";
 
 export const INTERNAL_ASSIGNEES = ["Roger Lo", "Mars Lin", "Kevin Huang", "Iris Chang", "Brian Wu"];
 
-export type WorkOrderAction = "submit" | "approve" | "reject" | "cancel" | "reassign" | "reopen" | "change_approved";
+export type WorkOrderAction =
+  | "submit"
+  | "review"
+  | "await_information"
+  | "review_claim"
+  | "approve"
+  | "reject"
+  | "fulfill_replacement"
+  | "close"
+  | "cancel"
+  | "reassign"
+  | "reopen"
+  | "change_approved";
 
 export interface TransitionRule {
   action: WorkOrderAction;
@@ -16,62 +28,18 @@ export interface TransitionRule {
 }
 
 export const transitionRules: TransitionRule[] = [
-  {
-    action: "submit",
-    label: "Submit for review",
-    from: ["draft", "reopened"],
-    to: "In Review",
-    who: "Current assignee",
-    reason: false,
-  },
-  {
-    action: "approve",
-    label: "Approve",
-    from: ["in_review"],
-    to: "Approved",
-    who: "Internal user, not the applicant",
-    reason: false,
-  },
-  {
-    action: "reject",
-    label: "Reject",
-    from: ["in_review", "reopened"],
-    to: "Rejected",
-    who: "Current assignee, not the applicant",
-    reason: true,
-  },
-  {
-    action: "cancel",
-    label: "Cancel",
-    from: ["draft", "in_review", "reopened"],
-    to: "Cancelled",
-    who: "Applicant or current assignee",
-    reason: true,
-  },
-  {
-    action: "reassign",
-    label: "Reassign",
-    from: ["draft", "in_review", "approved", "reopened"],
-    to: "Same status",
-    who: "Current assignee, not the applicant",
-    reason: true,
-  },
-  {
-    action: "reopen",
-    label: "Reopen",
-    from: ["rejected", "cancelled", "approved"],
-    to: "Reopened",
-    who: "Current assignee or owner, not the applicant",
-    reason: true,
-  },
-  {
-    action: "change_approved",
-    label: "Change approved quantity or amount",
-    from: ["approved", "reopened"],
-    to: "Same status",
-    who: "Current assignee, not the applicant",
-    reason: true,
-  },
+  { action: "submit", label: "Submit", from: ["draft"], to: "Submitted", who: "Service Operations", reason: false },
+  { action: "review", label: "Assign for review", from: ["submitted", "awaiting_information"], to: "In review", who: "Service Operations", reason: false },
+  { action: "review_claim", label: "Review claim", from: ["submitted", "awaiting_information"], to: "In review", who: "Quality", reason: false },
+  { action: "await_information", label: "Await information", from: ["in_review"], to: "Awaiting information", who: "Service Operations", reason: false },
+  { action: "approve", label: "Approve", from: ["in_review"], to: "Approved", who: "Finance", reason: false },
+  { action: "reject", label: "Reject", from: ["in_review"], to: "Resolved", who: "Quality", reason: true },
+  { action: "fulfill_replacement", label: "Fulfill replacement", from: ["approved"], to: "In fulfillment", who: "Parts and Logistics", reason: false },
+  { action: "close", label: "Close", from: ["resolved"], to: "Closed", who: "Service Operations", reason: false },
+  { action: "cancel", label: "Cancel", from: ["draft", "submitted", "in_review", "awaiting_information"], to: "Cancelled", who: "Service Operations", reason: true },
+  { action: "reassign", label: "Reassign", from: ["submitted", "in_review", "awaiting_information", "approved", "in_fulfillment"], to: "Same status", who: "Service Operations", reason: true },
+  { action: "reopen", label: "Reopen", from: ["resolved", "closed"], to: "In review", who: "Service Operations", reason: true },
+  { action: "change_approved", label: "Change approved quantity or amount", from: ["approved", "in_fulfillment"], to: "Same status", who: "Finance", reason: true },
 ];
 
 export function currentAssignee(record: WorkOrderRecord): string {
@@ -95,17 +63,20 @@ export function canRun(action: WorkOrderAction, record: WorkOrderRecord, actor: 
   const internal = INTERNAL_ASSIGNEES.includes(actor);
   switch (action) {
     case "submit":
-      return isAssignee;
-    case "approve":
-      return internal && !isApplicant;
-    case "reject":
-    case "reassign":
-    case "change_approved":
-      return isAssignee && !isApplicant;
+    case "review":
+    case "await_information":
     case "cancel":
-      return isApplicant || isAssignee;
+    case "reassign":
+    case "close":
     case "reopen":
-      return (isAssignee || isOwner) && !isApplicant;
+      return isAssignee || isOwner;
+    case "review_claim":
+    case "reject":
+      return internal && !isApplicant;
+    case "approve":
+    case "change_approved":
+    case "fulfill_replacement":
+      return internal && !isApplicant;
   }
 }
 
