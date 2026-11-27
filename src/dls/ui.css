@@ -1204,13 +1204,39 @@ table.data .align-right {
   line-height: var(--line-normal);
 }
 
+.status-history-title {
+  margin-top: 40px;
+}
+
+.record-card.status-history {
+  padding-top: 20px;
+}
+
 .message-card {
-  padding-top: 0;
+  margin-top: 28px;
+  padding: 4px 0 8px;
 }
 
 .message-card .tabs {
-  margin: 0 -16px 4px;
-  padding: 0 8px;
+  margin: 0;
+  padding: 0 16px;
+}
+
+.message-card .tab {
+  height: 40px;
+  color: var(--color-text-muted);
+  font-weight: var(--font-medium);
+}
+
+.message-card .tab.is-active {
+  color: var(--color-text);
+  font-weight: var(--font-semibold);
+}
+
+.message-card .message-list,
+.message-card .record-empty {
+  margin-right: 16px;
+  margin-left: 16px;
 }
 
 .file-cards {
@@ -1223,55 +1249,38 @@ table.data .align-right {
 }
 
 .file-card {
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-}
-
-.file-card-preview {
-  display: grid;
-  place-items: center;
-  height: 88px;
-  background: var(--color-surface-sunken);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-12);
-  font-weight: var(--font-semibold);
-  letter-spacing: 0.04em;
-}
-
-.file-card.is-photo .file-card-preview {
-  background: var(--status-serviceable-bg);
-  color: var(--status-serviceable-fg);
-}
-
-.file-card.is-text .file-card-preview {
-  background: var(--status-review-bg);
-  color: var(--status-review-fg);
-}
-
-.file-card.is-video .file-card-preview {
-  background: var(--status-assembly-bg);
-  color: var(--status-assembly-fg);
-}
-
-.file-card-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px 12px;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 132px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-sunken);
 }
 
-.file-card-body strong {
+.file-card-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--color-selected);
+  color: var(--color-primary);
+}
+
+.file-card strong {
   font-size: var(--font-size-14);
   font-weight: var(--font-semibold);
+  line-height: var(--line-tight);
   word-break: break-word;
 }
 
-.file-card-body span,
-.file-card-body time {
+.file-card > span,
+.file-card time {
   color: var(--color-text-muted);
   font-size: var(--font-size-12);
+  line-height: var(--line-normal);
 }
 
 .audit-dialog {

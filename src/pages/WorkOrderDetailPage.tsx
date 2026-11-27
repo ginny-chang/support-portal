@@ -1,4 +1,6 @@
+import { FileImage, FileText, FileType, FileVideo } from "lucide-react";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
@@ -66,16 +68,16 @@ function StatusHistory({ events }: { events: WorkOrderStatusEvent[] }) {
   );
 }
 
-function fileFormat(name: string): { label: string; kind: "photo" | "text" | "video" } {
+function fileFormat(name: string): { label: string; icon: ReactNode } {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
-  if (ext === "jpg" || ext === "jpeg") return { label: "JPEG", kind: "photo" };
-  if (ext === "png") return { label: "PNG", kind: "photo" };
-  if (ext === "txt") return { label: "TXT", kind: "text" };
-  if (ext === "pdf") return { label: "PDF", kind: "text" };
-  if (ext === "doc" || ext === "docx") return { label: "Word", kind: "text" };
-  if (ext === "mp4") return { label: "MP4", kind: "video" };
-  if (ext === "mov") return { label: "MOV", kind: "video" };
-  return { label: ext.toUpperCase() || "File", kind: "text" };
+  if (ext === "jpg" || ext === "jpeg") return { label: "JPEG", icon: <FileImage size={18} /> };
+  if (ext === "png") return { label: "PNG", icon: <FileImage size={18} /> };
+  if (ext === "txt") return { label: "TXT", icon: <FileText size={18} /> };
+  if (ext === "pdf") return { label: "PDF", icon: <FileText size={18} /> };
+  if (ext === "doc" || ext === "docx") return { label: "Word", icon: <FileType size={18} /> };
+  if (ext === "mp4") return { label: "MP4", icon: <FileVideo size={18} /> };
+  if (ext === "mov") return { label: "MOV", icon: <FileVideo size={18} /> };
+  return { label: ext.toUpperCase() || "File", icon: <FileText size={18} /> };
 }
 
 function AttachmentList({ files }: { files: WorkOrderAttachment[] }) {
@@ -86,13 +88,14 @@ function AttachmentList({ files }: { files: WorkOrderAttachment[] }) {
       {rows.map((file) => {
         const format = fileFormat(file.name);
         return (
-          <li key={`${file.at}-${file.name}`} className={`file-card is-${format.kind}`}>
-            <div className="file-card-preview">{format.label}</div>
-            <div className="file-card-body">
-              <strong>{file.name}</strong>
-              <span>{file.addedBy}</span>
-              <time dateTime={file.at}>{formatDateTime(file.at)}</time>
-            </div>
+          <li key={`${file.at}-${file.name}`} className="file-card">
+            <span className="file-card-icon" aria-hidden="true">
+              {format.icon}
+            </span>
+            <strong>{file.name}</strong>
+            <span>
+              {format.label} · {file.addedBy} · <time dateTime={file.at}>{formatDateTime(file.at)}</time>
+            </span>
           </li>
         );
       })}
@@ -110,8 +113,8 @@ function MessageCard({ internal, external }: { internal: WorkOrderMessage[]; ext
         value={tab}
         onChange={setTab}
         items={[
-          { id: "internal", label: "Internal" },
-          { id: "external", label: "External" },
+          { id: "internal", label: "Internal notes" },
+          { id: "external", label: "Messages visible to the applicant" },
         ]}
       />
       <div role="tabpanel">
@@ -258,12 +261,11 @@ export function WorkOrderDetailPage() {
             </table>
           </section>
 
-          <h2 className="section-title">Status history</h2>
-          <section className="record-card" aria-label="Status history">
+          <h2 className="section-title status-history-title">Status history</h2>
+          <section className="record-card status-history" aria-label="Status history">
             <StatusHistory events={record.statusHistory} />
           </section>
 
-          <h2 className="section-title">Messages</h2>
           <MessageCard internal={record.internalNotes} external={record.applicantMessages} />
 
           <h2 className="section-title">Attachments</h2>
