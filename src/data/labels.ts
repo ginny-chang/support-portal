@@ -1,4 +1,5 @@
 import type { BomStatus, Serviceability } from "./bom";
+import type { WorkOrderStatus } from "./workOrders";
 
 export type TagTone =
   | "draft"
@@ -9,7 +10,11 @@ export type TagTone =
   | "serviceable"
   | "replaceable"
   | "consumable"
-  | "assembly";
+  | "assembly"
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "reopened";
 
 export function statusLabel(status: BomStatus): string {
   switch (status) {
@@ -23,6 +28,40 @@ export function statusLabel(status: BomStatus): string {
       return "Superseded";
     case "obsolete":
       return "Obsolete";
+  }
+}
+
+export function workOrderStatusLabel(status: WorkOrderStatus): string {
+  switch (status) {
+    case "draft":
+      return "Draft";
+    case "in_review":
+      return "In Review";
+    case "approved":
+      return "Approved";
+    case "rejected":
+      return "Rejected";
+    case "cancelled":
+      return "Cancelled";
+    case "reopened":
+      return "Reopened";
+  }
+}
+
+export function workOrderStatusTone(status: WorkOrderStatus): TagTone {
+  switch (status) {
+    case "draft":
+      return "draft";
+    case "in_review":
+      return "review";
+    case "approved":
+      return "approved";
+    case "rejected":
+      return "rejected";
+    case "cancelled":
+      return "cancelled";
+    case "reopened":
+      return "reopened";
   }
 }
 

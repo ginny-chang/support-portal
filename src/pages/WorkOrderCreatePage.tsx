@@ -20,6 +20,8 @@ function lineFromBom(source: BomLine): WorkOrderLine {
     description: source.description,
     quantity: source.quantity,
     unit: source.unit,
+    approvedQuantity: null,
+    approvedAmount: null,
   };
 }
 

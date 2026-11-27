@@ -8,7 +8,7 @@ import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
 import { StatusTag } from "../components/StatusTag";
 import { formatDateTime } from "../data/format";
-import { statusLabel, statusTone } from "../data/labels";
+import { workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
 import type { WorkOrderRecord } from "../data/workOrders";
 import { useWorkOrders } from "../data/workOrderCatalog";
 
@@ -71,8 +71,8 @@ export function WorkOrderListPage() {
       {
         id: "status",
         header: "Status",
-        width: "124px",
-        render: (row) => <StatusTag tone={statusTone(row.status)}>{statusLabel(row.status)}</StatusTag>,
+        width: "132px",
+        render: (row) => <StatusTag tone={workOrderStatusTone(row.status)}>{workOrderStatusLabel(row.status)}</StatusTag>,
       },
       { id: "dealer", header: "Dealer", render: (row) => row.dealer },
       {
