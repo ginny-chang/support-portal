@@ -913,13 +913,6 @@ table.data .align-right {
   color: var(--status-replaceable-fg);
 }
 
-.wo-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
 .transition-table {
   width: 100%;
   border-collapse: collapse;

@@ -1,17 +1,12 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
-import { SelectMenu } from "../components/SelectMenu";
 import { StatusTag } from "../components/StatusTag";
 import { formatDateTime } from "../data/format";
 import { workOrderStatusLabel, workOrderStatusTone } from "../data/labels";
 import type { WorkOrderAssignment, WorkOrderAttachment, WorkOrderLine, WorkOrderMessage, WorkOrderRecord, WorkOrderStatusEvent } from "../data/workOrders";
-import type { WorkOrderCommand } from "../data/workOrderCatalog";
 import { useWorkOrders } from "../data/workOrderCatalog";
-import { canRun, currentAssignee, INTERNAL_ASSIGNEES, linkedWorkOrders, possibleDuplicates, transitionRules, type WorkOrderAction } from "../data/workOrderRules";
+import { currentAssignee, linkedWorkOrders, possibleDuplicates, transitionRules } from "../data/workOrderRules";
 
 const lineColumns: Column<WorkOrderLine>[] = [
   { id: "part", header: "Part ID", width: "160px", render: (line) => line.partId },
@@ -130,129 +125,6 @@ function RelatedOrders({ record, records }: { record: WorkOrderRecord; records: 
   );
 }
 
-function OrderActions({ record }: { record: WorkOrderRecord }) {
-  const { currentUser, runAction } = useWorkOrders();
-  const [action, setAction] = useState<WorkOrderAction | "">("");
-  const [reason, setReason] = useState("");
-  const [assignee, setAssignee] = useState(INTERNAL_ASSIGNEES.find((name) => name !== currentAssignee(record)) ?? INTERNAL_ASSIGNEES[0]);
-  const [partId, setPartId] = useState(record.lines[0]?.partId ?? "");
-  const [quantity, setQuantity] = useState(String(record.lines[0]?.approvedQuantity ?? record.lines[0]?.quantity ?? ""));
-  const [amount, setAmount] = useState(String(record.lines[0]?.approvedAmount ?? ""));
-  const [error, setError] = useState("");
-  const available = transitionRules.filter((rule) => canRun(rule.action, record, currentUser));
-  const selected = record.lines.find((line) => line.partId === partId) ?? record.lines[0];
-
-  function choose(next: WorkOrderAction) {
-    setAction(next);
-    setReason("");
-    setError("");
-    const line = record.lines[0];
-    if (line) {
-      setPartId(line.partId);
-      setQuantity(String(line.approvedQuantity ?? line.quantity));
-      setAmount(line.approvedAmount == null ? "" : String(line.approvedAmount));
-    }
-  }
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!action) return;
-    const rule = transitionRules.find((item) => item.action === action);
-    if (rule?.reason && !reason.trim()) {
-      setError("Reason is required.");
-      return;
-    }
-    let command: WorkOrderCommand;
-    if (action === "reassign") {
-      command = { action, assignee, reason };
-    } else if (action === "change_approved") {
-      const nextQuantity = Number(quantity);
-      const nextAmount = Number(amount);
-      if (!selected || !Number.isFinite(nextQuantity) || nextQuantity <= 0 || !Number.isFinite(nextAmount) || nextAmount < 0) {
-        setError("Approved quantity must be a positive number, and amount must be zero or greater.");
-        return;
-      }
-      command = { action, partId: selected.partId, quantity: nextQuantity, amount: nextAmount, reason };
-    } else if (action === "reject" || action === "cancel" || action === "reopen") {
-      command = { action, reason };
-    } else {
-      command = { action };
-    }
-    const saved = runAction(record.id, command);
-    if (!saved) {
-      setError("Reason is required.");
-      return;
-    }
-    setAction("");
-    setReason("");
-    setError("");
-  }
-
-  return (
-    <>
-      {available.length > 0 ? (
-        <div className="wo-actions">
-          {available.map((rule) => (
-            <Button key={rule.action} variant={action === rule.action ? "primary" : "secondary"} onClick={() => choose(rule.action)}>
-              {rule.label}
-            </Button>
-          ))}
-        </div>
-      ) : null}
-      {action ? (
-        <form className="action-panel" onSubmit={submit}>
-          {action === "reassign" ? (
-            <label className="field">
-              <span className="field-label">Assignment</span>
-              <SelectMenu
-                label="Assignment"
-                value={assignee}
-                options={INTERNAL_ASSIGNEES.filter((name) => name !== currentAssignee(record)).map((name) => ({ value: name, label: name }))}
-                onChange={setAssignee}
-              />
-            </label>
-          ) : null}
-          {action === "change_approved" ? (
-            <>
-              <label className="field">
-                <span className="field-label">Part ID</span>
-                <SelectMenu
-                  label="Part ID"
-                  value={partId}
-                  options={record.lines.map((line) => ({ value: line.partId, label: `${line.partId} ${line.description}` }))}
-                  onChange={(value) => {
-                    setPartId(value);
-                    const line = record.lines.find((item) => item.partId === value);
-                    if (!line) return;
-                    setQuantity(String(line.approvedQuantity ?? line.quantity));
-                    setAmount(line.approvedAmount == null ? "" : String(line.approvedAmount));
-                  }}
-                />
-              </label>
-              <label className="field">
-                <span className="field-label">Approved quantity</span>
-                <input className="control" inputMode="decimal" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
-              </label>
-              <label className="field">
-                <span className="field-label">Amount</span>
-                <input className="control" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
-              </label>
-            </>
-          ) : null}
-          {transitionRules.find((rule) => rule.action === action)?.reason ? (
-            <label className="field field-wide">
-              <span className="field-label">Reason</span>
-              <input className="control" value={reason} onChange={(event) => setReason(event.target.value)} />
-            </label>
-          ) : null}
-          <Button type="submit">{transitionRules.find((rule) => rule.action === action)?.label}</Button>
-          {error ? <p className="form-errors">{error}</p> : null}
-        </form>
-      ) : null}
-    </>
-  );
-}
-
 export function WorkOrderDetailPage() {
   const { workOrderId = "" } = useParams();
   const { records } = useWorkOrders();
@@ -276,7 +148,6 @@ export function WorkOrderDetailPage() {
             <StatusTag tone={workOrderStatusTone(record.status)}>{workOrderStatusLabel(record.status)}</StatusTag>
           </div>
           {record.product && record.assembly ? <p className="detail-assembly">{record.assembly}</p> : null}
-          <OrderActions record={record} />
           <dl className="meta-grid">
             <div>
               <dt>Work Order ID</dt>
