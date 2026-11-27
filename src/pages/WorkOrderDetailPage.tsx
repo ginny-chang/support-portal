@@ -135,12 +135,10 @@ function StatusTags({ labels }: { labels: string[] }) {
     <span className="tag-row">
       {labels.map((label) => {
         const status = statusByLabel[label];
-        return status ? (
-          <StatusTag key={label} tone={workOrderStatusTone(status)}>
+        return (
+          <StatusTag key={label} tone={status ? workOrderStatusTone(status) : "draft"}>
             {label}
           </StatusTag>
-        ) : (
-          <span key={label}>{label}</span>
         );
       })}
     </span>
