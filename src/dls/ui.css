@@ -437,59 +437,33 @@
   margin: 0 0 12px;
 }
 
-.stock-globe {
-  position: relative;
-  height: 280px;
+.stock-map {
+  height: 260px;
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background: var(--color-surface-sunken);
+  background: #f3f4f7;
+  z-index: 0;
 }
 
-.stock-globe-canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 118%;
-  height: auto;
-  aspect-ratio: 1;
-  opacity: 0;
-  cursor: grab;
-  transform: translate(-50%, -50%);
+.stock-map .leaflet-tile-pane {
+  filter: grayscale(1) contrast(1.08);
 }
 
-.stock-marker {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
+.stock-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #f3f4f7;
+  font-family: inherit;
+}
+
+.stock-map-label {
   border: 0;
+  border-radius: 0;
   background: transparent;
-  opacity: 0;
-}
-
-.stock-marker-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-pill);
-  background: transparent;
-}
-
-.stock-marker-tag {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: var(--shadow-pop);
-}
-
-.parts-pie {
-  height: 280px;
+  box-shadow: none;
+  color: #16181d;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .dash-query-bar {
