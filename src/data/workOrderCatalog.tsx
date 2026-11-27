@@ -46,18 +46,27 @@ export function WorkOrderCatalogProvider({ children }: { children: ReactNode }) 
       records,
       addWorkOrder(input) {
         const id = nextId(records);
+        const updatedAt = taipeiStamp();
+        const dealer = input.dealer.trim();
+        const request = input.request.trim();
         const record: WorkOrderRecord = {
           id,
           bomId: input.bomId,
           product: input.product,
           assembly: input.assembly,
           serialNumber: input.serialNumber.trim(),
-          dealer: input.dealer.trim(),
-          request: input.request.trim(),
+          dealer,
+          applicant: dealer,
+          request,
           status: "draft",
           owner: CURRENT_USER,
-          updatedAt: taipeiStamp(),
+          updatedAt,
           lines: input.lines,
+          assignments: [{ at: updatedAt, actor: CURRENT_USER, assignee: CURRENT_USER }],
+          internalNotes: [],
+          applicantMessages: [{ at: updatedAt, author: dealer, body: request }],
+          attachments: [],
+          statusHistory: [{ at: updatedAt, actor: CURRENT_USER, status: "draft", change: "Saved draft" }],
         };
         setRecords((current) => [record, ...current]);
         return id;

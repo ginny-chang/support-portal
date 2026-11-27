@@ -1059,6 +1059,96 @@ table.data .align-right {
   font-weight: var(--font-semibold);
 }
 
+.meta-span {
+  grid-column: 1 / -1;
+}
+
+.record-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+  align-items: start;
+}
+
+.record-card {
+  margin-top: 8px;
+  padding: 4px 16px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.record-card.is-internal {
+  background: var(--color-surface-sunken);
+}
+
+.record-card > .section-title {
+  margin-top: 12px;
+}
+
+.record-empty {
+  margin: 4px 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-14);
+}
+
+.status-change {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: var(--font-size-14);
+  color: var(--color-text-secondary);
+}
+
+.message-list,
+.file-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-list li,
+.file-list li {
+  padding: 10px 0 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.message-meta,
+.file-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.message-meta strong,
+.file-list strong {
+  font-size: var(--font-size-14);
+  font-weight: var(--font-semibold);
+}
+
+.message-meta time,
+.file-list span,
+.file-list time {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+}
+
+.file-list li {
+  justify-content: flex-start;
+}
+
+.file-list time {
+  margin-left: auto;
+}
+
+.message-list p {
+  margin: 6px 0 0;
+  font-size: var(--font-size-14);
+  line-height: var(--line-normal);
+}
+
 .audit-dialog {
   width: min(480px, calc(100% - 48px));
   max-height: min(640px, calc(100% - 48px));
