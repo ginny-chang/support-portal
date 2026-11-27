@@ -10,6 +10,7 @@ import "@fontsource/noto-sans-tc/chinese-traditional-600.css";
 import "@fontsource/noto-sans-tc/chinese-traditional-700.css";
 import "./dls/base.css";
 import "./dls/ui.css";
+import "./dls/tailwind.css";
 import App from "./App";
 
 const root = document.getElementById("root");

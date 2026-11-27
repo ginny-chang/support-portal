@@ -1,6 +1,6 @@
-import { getPayloadConfigFromPayload, getColorsCount, useChart } from "./recharts-chart";
+import { getPayloadConfigFromPayload, getColorsCount, useChart } from "@/registry/ui/recharts-chart";
 import * as RechartsPrimitive from "recharts";
-import { cn } from "../../../lib/utils";
+import { cn } from "@/lib/utils";
 import * as React from "react";
 
 type ChartLegendVariant =
@@ -40,7 +40,7 @@ function ChartLegendContent({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 select-none",
+        "flex flex-wrap items-center gap-4 select-none",
         align === "left" && "justify-start",
         align === "center" && "justify-center",
         align === "right" && "justify-end",

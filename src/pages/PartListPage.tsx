@@ -8,8 +8,8 @@ import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
-import { EvilPieChart } from "../components/evilcharts/charts/recharts-pie-chart";
-import type { ChartConfig } from "../components/evilcharts/ui/recharts-chart";
+import { EvilPieChart } from "@/registry/charts/recharts-pie-chart";
+import type { ChartConfig } from "@/registry/ui/recharts-chart";
 import { StatusTag } from "../components/StatusTag";
 import { formatDateTime } from "../data/format";
 import { serviceabilityLabel, serviceabilityTone } from "../data/labels";
@@ -28,12 +28,20 @@ function cityOf(location: string): string {
   return location.split(" ")[0] || location;
 }
 
-const serviceabilityChart = {
-  serviceable: { label: "Serviceable", colors: { light: ["var(--status-serviceable-fg)"], dark: ["var(--status-serviceable-fg)"] } },
-  replaceable: { label: "Replaceable", colors: { light: ["var(--status-replaceable-fg)"], dark: ["var(--status-replaceable-fg)"] } },
-  consumable: { label: "Consumable", colors: { light: ["var(--status-consumable-fg)"], dark: ["var(--status-consumable-fg)"] } },
-  assembly: { label: "Assembly replacement", colors: { light: ["var(--status-assembly-fg)"], dark: ["var(--status-assembly-fg)"] } },
-} satisfies ChartConfig;
+function serviceabilityChart(counts: Record<string, number>): ChartConfig {
+  const tone = {
+    serviceable: "var(--status-serviceable-fg)",
+    replaceable: "var(--status-replaceable-fg)",
+    consumable: "var(--status-consumable-fg)",
+    assembly: "var(--status-assembly-fg)",
+  } as const;
+  return {
+    serviceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("serviceable")} {counts.serviceable ?? 0}</span>, colors: { light: [tone.serviceable], dark: [tone.serviceable] } },
+    replaceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("replaceable")} {counts.replaceable ?? 0}</span>, colors: { light: [tone.replaceable], dark: [tone.replaceable] } },
+    consumable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("consumable")} {counts.consumable ?? 0}</span>, colors: { light: [tone.consumable], dark: [tone.consumable] } },
+    assembly: { label: <span className="whitespace-nowrap">{serviceabilityLabel("assembly")} {counts.assembly ?? 0}</span>, colors: { light: [tone.assembly], dark: [tone.assembly] } },
+  };
+}
 
 function LocationMap({ places }: { places: { city: string; quantity: number }[] }) {
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -104,6 +112,7 @@ export function PartListPage() {
     }))
     .filter((item) => item.count > 0);
   const pieData = serviceability.map((item) => ({ type: item.value, count: item.count }));
+  const pieConfig = serviceabilityChart(Object.fromEntries(serviceability.map((item) => [item.value, item.count])));
   const rows = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matched = needle
@@ -182,20 +191,11 @@ export function PartListPage() {
         </article>
         <article>
           <h2>Serviceability</h2>
-          <div className="parts-pie">
-            <EvilPieChart data={pieData} dataKey="count" nameKey="type" config={serviceabilityChart}>
-              <EvilPieChart.Pie />
-              <EvilPieChart.Tooltip />
-            </EvilPieChart>
-            <ul>
-              {serviceability.map((item) => (
-                <li key={item.value}>
-                  <StatusTag tone={serviceabilityTone(item.value)}>{serviceabilityLabel(item.value)}</StatusTag>
-                  <strong>{item.count}</strong>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <EvilPieChart className="aspect-auto h-64 w-full" data={pieData} dataKey="count" nameKey="type" config={pieConfig}>
+            <EvilPieChart.Legend isClickable variant="circle" />
+            <EvilPieChart.Tooltip />
+            <EvilPieChart.Pie isClickable />
+          </EvilPieChart>
         </article>
       </section>
       <section className="dash-query" aria-label="Spare part lookup">

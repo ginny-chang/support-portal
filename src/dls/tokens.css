@@ -1,5 +1,9 @@
 :root {
   --color-canvas: #f3f4f6;
+  --color-background: #ffffff;
+  --color-foreground: #16181d;
+  --color-muted: #f3f4f7;
+  --color-muted-foreground: #4e5666;
   --color-surface: #ffffff;
   --color-surface-sunken: #f7f8fa;
   --color-surface-hover: #f4f6f8;

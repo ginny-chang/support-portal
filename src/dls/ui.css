@@ -466,38 +466,6 @@
   font-weight: 600;
 }
 
-.parts-pie {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-height: 220px;
-}
-
-.parts-pie [data-slot="chart"] {
-  width: 180px;
-  height: 180px;
-  flex: none;
-}
-
-.parts-pie .recharts-responsive-container {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.parts-pie ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.parts-pie li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 32px;
-}
-
 .dash-query-bar {
   display: flex;
   align-items: center;
