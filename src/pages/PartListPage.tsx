@@ -29,10 +29,10 @@ function cityOf(location: string): string {
 }
 
 const SERVICEABILITY_CHART = [
-  { key: "serviceable", swatch: "bg-[#0e5f68]", colors: ["#0e5f68", "#3d9aa3"] },
-  { key: "replaceable", swatch: "bg-[#243e8c]", colors: ["#243e8c", "#5d78c4"] },
-  { key: "consumable", swatch: "bg-[#5c3e00]", colors: ["#5c3e00", "#a67c2d"] },
-  { key: "assembly", swatch: "bg-[#3e3278]", colors: ["#3e3278", "#6d62a8"] },
+  { key: "serviceable", swatch: "bg-[#06038d]", colors: ["#06038d", "#4f46e5"] },
+  { key: "replaceable", swatch: "bg-[#1d4ed8]", colors: ["#1d4ed8", "#60a5fa"] },
+  { key: "consumable", swatch: "bg-[#0284c7]", colors: ["#0284c7", "#38bdf8"] },
+  { key: "assembly", swatch: "bg-[#6366f1]", colors: ["#6366f1", "#a5b4fc"] },
 ] as const;
 
 function LocationMap({ places }: { places: { city: string; quantity: number }[] }) {
