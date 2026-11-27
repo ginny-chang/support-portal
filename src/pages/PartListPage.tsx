@@ -8,8 +8,8 @@ import { Button } from "../components/Button";
 import type { Column } from "../components/DataTable";
 import { DataTable } from "../components/DataTable";
 import { SearchField } from "../components/Fields";
-import { EvilPieChart } from "@/registry/charts/recharts-pie-chart";
-import type { ChartConfig } from "@/registry/ui/recharts-chart";
+import { EChartsPieChart, type ChartConfig } from "@/registry/charts/echarts-pie-chart";
+import { cn } from "@/lib/utils";
 import { StatusTag } from "../components/StatusTag";
 import { formatDateTime } from "../data/format";
 import { serviceabilityLabel, serviceabilityTone } from "../data/labels";
@@ -28,20 +28,12 @@ function cityOf(location: string): string {
   return location.split(" ")[0] || location;
 }
 
-function serviceabilityChart(counts: Record<string, number>): ChartConfig {
-  const tone = {
-    serviceable: "var(--status-serviceable-fg)",
-    replaceable: "var(--status-replaceable-fg)",
-    consumable: "var(--status-consumable-fg)",
-    assembly: "var(--status-assembly-fg)",
-  } as const;
-  return {
-    serviceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("serviceable")} {counts.serviceable ?? 0}</span>, colors: { light: [tone.serviceable], dark: [tone.serviceable] } },
-    replaceable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("replaceable")} {counts.replaceable ?? 0}</span>, colors: { light: [tone.replaceable], dark: [tone.replaceable] } },
-    consumable: { label: <span className="whitespace-nowrap">{serviceabilityLabel("consumable")} {counts.consumable ?? 0}</span>, colors: { light: [tone.consumable], dark: [tone.consumable] } },
-    assembly: { label: <span className="whitespace-nowrap">{serviceabilityLabel("assembly")} {counts.assembly ?? 0}</span>, colors: { light: [tone.assembly], dark: [tone.assembly] } },
-  };
-}
+const SERVICEABILITY_CHART = [
+  { key: "serviceable", swatch: "bg-[#0e5f68]", colors: ["#0e5f68", "#3d9aa3"] },
+  { key: "replaceable", swatch: "bg-[#243e8c]", colors: ["#243e8c", "#5d78c4"] },
+  { key: "consumable", swatch: "bg-[#5c3e00]", colors: ["#5c3e00", "#a67c2d"] },
+  { key: "assembly", swatch: "bg-[#3e3278]", colors: ["#3e3278", "#6d62a8"] },
+] as const;
 
 function LocationMap({ places }: { places: { city: string; quantity: number }[] }) {
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -105,14 +97,16 @@ export function PartListPage() {
     city,
     quantity: records.filter((record) => cityOf(record.location) === city).reduce((sum, record) => sum + record.quantity, 0),
   }));
-  const serviceability = (["serviceable", "replaceable", "consumable", "assembly"] as const)
-    .map((value) => ({
-      value,
-      count: records.filter((record) => record.serviceability === value).length,
-    }))
-    .filter((item) => item.count > 0);
-  const pieData = serviceability.map((item) => ({ type: item.value, count: item.count }));
-  const pieConfig = serviceabilityChart(Object.fromEntries(serviceability.map((item) => [item.value, item.count])));
+  const serviceability = SERVICEABILITY_CHART.map((item) => ({
+    ...item,
+    label: serviceabilityLabel(item.key),
+    count: records.filter((record) => record.serviceability === item.key).length,
+  })).filter((item) => item.count > 0);
+  const pieData = serviceability.map((item) => ({ type: item.key, value: item.count }));
+  const pieTotal = serviceability.reduce((sum, item) => sum + item.count, 0);
+  const pieConfig = Object.fromEntries(
+    serviceability.map((item) => [item.key, { label: item.label, colors: { light: [...item.colors], dark: [...item.colors] } }]),
+  ) satisfies ChartConfig;
   const rows = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matched = needle
@@ -191,11 +185,29 @@ export function PartListPage() {
         </article>
         <article>
           <h2>Serviceability</h2>
-          <EvilPieChart className="aspect-auto h-64 w-full" data={pieData} dataKey="count" nameKey="type" config={pieConfig}>
-            <EvilPieChart.Legend isClickable variant="circle" />
-            <EvilPieChart.Tooltip />
-            <EvilPieChart.Pie isClickable />
-          </EvilPieChart>
+          <div className="flex h-64 w-full items-center gap-3">
+            <div className="relative aspect-square h-full max-w-72 shrink-0">
+              <EChartsPieChart data={pieData} config={pieConfig} dataKey="value" nameKey="type" className="h-full w-full">
+                <EChartsPieChart.Tooltip />
+                <EChartsPieChart.Pie innerRadius="62%" outerRadius="92%" paddingAngle={6} cornerRadius={12} startAngle={90} endAngle={-270} />
+              </EChartsPieChart>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="flex aspect-square w-[56%] flex-col items-center justify-center rounded-full border border-dashed border-border">
+                  <span className="text-lg leading-none font-semibold tracking-tight text-primary">{pieTotal}</span>
+                  <span className="mt-1 text-xs text-muted-foreground">SKUs</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center">
+              {serviceability.map((item) => (
+                <div key={item.key} className="flex items-center gap-2 py-1.5">
+                  <span className={cn("size-2.5 shrink-0 rounded-[3px]", item.swatch)} />
+                  <span className="truncate text-xs text-muted-foreground">{item.label}</span>
+                  <span className="ml-auto text-xs font-semibold text-primary">{item.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </article>
       </section>
       <section className="dash-query" aria-label="Spare part lookup">

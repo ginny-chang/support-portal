@@ -3,3 +3,10 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @source "../vendor/evilcharts";
 @source "../pages";
+
+@theme inline {
+  --color-primary: #06038d;
+  --color-border: #e6e8ee;
+  --color-muted-foreground: #4e5666;
+  --color-background: #ffffff;
+}
