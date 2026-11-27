@@ -379,6 +379,133 @@
   padding: 8px 28px 28px;
 }
 
+.parts-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.dash-stats,
+.dash-charts {
+  display: grid;
+  gap: 12px;
+}
+
+.dash-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dash-charts {
+  grid-template-columns: 1.3fr 1fr;
+}
+
+.dash-stats article,
+.dash-charts article,
+.dash-query {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.dash-stats article {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+}
+
+.dash-stats span,
+.dash-charts h2 {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-semibold);
+}
+
+.dash-stats strong {
+  font-size: 28px;
+  font-weight: var(--font-semibold);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.dash-charts article {
+  padding: 16px 18px 8px;
+}
+
+.dash-charts h2 {
+  margin: 0 0 12px;
+}
+
+.dash-charts ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-charts li {
+  display: grid;
+  grid-template-columns: minmax(92px, max-content) minmax(0, 1fr) 28px;
+  gap: 10px;
+  align-items: center;
+  min-height: 32px;
+  margin-bottom: 8px;
+  font-size: var(--font-size-14);
+}
+
+.dash-charts li > span:first-child {
+  color: var(--color-text-secondary);
+}
+
+.dash-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+}
+
+.dash-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+}
+
+.dash-track > span.is-serviceable {
+  background: var(--status-serviceable-fg);
+}
+
+.dash-track > span.is-replaceable {
+  background: var(--status-replaceable-fg);
+}
+
+.dash-track > span.is-consumable {
+  background: var(--status-consumable-fg);
+}
+
+.dash-track > span.is-assembly {
+  background: var(--status-assembly-fg);
+}
+
+.dash-query-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dash-query-bar .search {
+  width: min(420px, 100%);
+}
+
+.dash-query-bar > span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-12);
+  font-variant-numeric: tabular-nums;
+}
+
 .tabs {
   display: flex;
   gap: 4px;
